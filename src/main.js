@@ -88,7 +88,7 @@ function log_score(event){
                 let other = pair.bodyA.ob.el.hasAttribute("data-goal") ? pair.bodyB : pair.bodyA
                 if(!pair.bodyA.ob.el.hasAttribute("data-nopoints") && !pair.bodyB.ob.el.hasAttribute("data-nopoints")){
                     // attach with the depth of collision * density of the attacker
-                    update_score(pair.collision.depth * other.density)
+                    update_score(pair.collision.depth)
                 }                
             }
         })
