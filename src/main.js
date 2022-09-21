@@ -31,7 +31,8 @@ let leader_board_button
 let close_leader
 let list_scores 
 // page load bits
-
+const start_money = 100
+ 
 function move_char(left){
     // used to select the next character
     let active = document.querySelector(".spr-option:not(.d-none)")
@@ -49,12 +50,12 @@ function move_char(left){
         }
         i ++
     })
-
     active.classList.add("d-none")
     change.classList.remove("d-none")
-
-
 }
+
+
+
 function clear_board(){
     // resets the game board and opens the screen
     clearInterval(interv)
@@ -220,25 +221,40 @@ function send_score_to_server(){
         send_score.classList.add("btn-outline-primary")
     },true)
 }
+function change_screen(screen="start", active=true){
+    if(screen=="start"){
+        startscreen.classList.remove("d-none")
+        endscreen.classList.add("d-none")
+        leader_board.classList.add("d-none")
+    }else if(screen=="end"){
+        startscreen.classList.add("d-none")
+        endscreen.classList.remove("d-none")
+        leader_board.classList.add("d-none")
+    }else if(screen=="leader"){
+        startscreen.classList.add("d-none")
+        endscreen.classList.add("d-none")
+        leader_board.classList.remove("d-none")
+    }
+    if(active){
+        choose_character.classList.add("active")
+    }else{
+        choose_character.classList.remove("active")
+    }
+}
 function show_end(score){
     // show the last screen with score etc
     show_score()
-    startscreen.classList.add("d-none")
-    endscreen.classList.remove("d-none")
-    choose_character.classList.add("active")
+    change_screen("end")
     choose_character.querySelector(".score").innerText = current_score.innerText
 }
 function close_end(){
     // close end screen asnd restart
-    startscreen.classList.remove("d-none")
-    endscreen.classList.add("d-none")
+    change_screen("start", false)
     clear_board()
 }
 function load_leaderboard(){
-    leader_board.classList.remove("d-none")
-    endscreen.classList.add("d-none")
-    startscreen.classList.add("d-none")
-    choose_character.classList.add("active")
+
+    change_screen("leader", true)
     list_scores.innerHTML = ""
     
     ajax_with_func(`https://thecomputermade.me/scores`, "GET", (d)=>{
@@ -246,7 +262,7 @@ function load_leaderboard(){
         let winner = d.scores[0].name
         let new_el = document.createElement("h3")
         list_scores.appendChild(new_el)
-        new_el.innerHTML ="TOP SCORER" + winner
+        new_el.innerHTML ="TOP SCORER - " + winner
         
         d.scores.forEach(value => {
             let new_el = document.createElement("div")
@@ -259,6 +275,7 @@ function load_leaderboard(){
 }
 
 function close_leaderboard(){
+    change_screen("leader", false)
     choose_character.classList.remove("active")
     leader_board.classList.add("d-none")
     startscreen.classList.remove("d-none")
@@ -276,25 +293,18 @@ function close_leaderboard(){
             })
         }
     }
-    window.addEventListener("load", ()=>{
 
-        // reinstate send score 
-
-
-        decrease_floor()
-        choose_character = document.getElementById("choose_char")
-        choose_character.classList.add("active")
-
-
-
+    function set_up_start_screen(){
         left = document.getElementById("char_left")
         right = document.getElementById("char_right")
+
         left.addEventListener("click", (e)=>{
             move_char(true)
         })
         right.addEventListener("click", (e)=>{
             move_char(false)
         })
+                
         start = document.getElementById("start")
 
         start.addEventListener("click", ()=>{
@@ -303,21 +313,54 @@ function close_leaderboard(){
             currentImage = active.firstElementChild.src
             start_games()
         })
+    }
+
+    function setup_buttons_onscreen(){
         document.getElementById("clear_board").addEventListener("click", clear_board)
         document.getElementById("restart").addEventListener("click", close_end)
-        current_score = document.getElementById("score_current")
-        startscreen = document.getElementById("start_screen")
-        endscreen = document.getElementById("end_screen")
-        score_text = document.getElementById("score_text")
-        send_score = document.getElementById("send")
-        send_score.addEventListener("click", send_score_to_server)
-        yourname = document.getElementById("your_name")
+    }
+    function setup_leader_board(){
+        // leader board modal el
         leader_board = document.getElementById("leader_screen")
+        // show leaderboard button
         leader_board_button = document.getElementById("leader_board_button")
+        // close leaderboard button
         close_leader = document.getElementById("close_leader")
+        // events for above
         leader_board_button.addEventListener("click", load_leaderboard)
         close_leader.addEventListener("click", close_leaderboard)
+        // list_scores element (where the scores go)
         list_scores = document.getElementById("list_scores")
+    }
+
+    window.addEventListener("load", ()=>{
+
+        // decrease floor size for mobile
+        decrease_floor()
+        // set modal screen 
+        choose_character = document.getElementById("choose_char")
+        // load screen
+        change_screen(start)
+        // set_up_start_screen
+        set_up_start_screen()
+        // set up buttons on play screen
+        setup_buttons_onscreen()
+        // global elements
+        // score counter element
+        current_score = document.getElementById("score_current")
+        // start screen (choose character)
+        startscreen = document.getElementById("start_screen")
+        // end screenn (points)
+        endscreen = document.getElementById("end_screen")
+        // score text (i.e your a looser)
+        score_text = document.getElementById("score_text")
+        // send score button ( and send to server )
+        send_score = document.getElementById("send")
+        send_score.addEventListener("click", send_score_to_server)
+        // the name input field 
+        yourname = document.getElementById("your_name")
+        // sets up the leaderboard bits
+        setup_leader_board()
     })
 
 })()
