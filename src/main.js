@@ -23,7 +23,7 @@ let score_level = 0
 let game_funcs
 let timeleft
 let startscreen, endscreen
-
+let score_text 
 // page load bits
 
 function move_char(left){
@@ -104,6 +104,7 @@ function start_timer(){
     },200)
 }
 function start_games(){
+    score_text.innerText = ""
     score_number = 0
     score_level = 0 
     // resets current score
@@ -132,8 +133,32 @@ function start_games(){
     // starts the timer
     start_timer()
 }
+function show_score(){
+    if(score_number < 500){
+        score_text.innerText = "STATUS: You're shit at this"
+    }else if(score_number < 1000){
+        score_text.innerText = "STATUS: You're worse than Rob"
+    }else if(score_number < 2500){
+        score_text.innerText = "STATUS: Go home crying to mummy"
+    }else if(score_number < 5000){
+        score_text.innerText = "STATUS: Getting better, but below average"
+    }else if(score_number < 10000){
+        score_text.innerText = "STATUS: Now we're getting somewhere"
+    }else if(score_number < 20000){
+        score_text.innerText = "STATUS: That was a belter."
+    }else if(score_number < 30000){
+        score_text.innerText = "STATUS: High score territory."
+    }else if(score_number < 40000){
+        score_text.innerText = "STATUS: Are you cheating?"
+    }else if(score_number < 50000){
+        score_text.innerText = "STATUS: Hax0r"
+    }else if(score_number < 100000){
+        score_text.innerText = "STATUS: God Mode Activated"
+    }
+}
 function show_end(score){
     // show the last screen with score etc
+    show_score()
     startscreen.classList.add("d-none")
     endscreen.classList.remove("d-none")
     choose_character.classList.add("active")
@@ -185,6 +210,7 @@ function close_end(){
         current_score = document.getElementById("score_current")
         startscreen = document.getElementById("start_screen")
         endscreen = document.getElementById("end_screen")
+        score_text = document.getElementById("score_text")
     })
 
 })()
