@@ -1,0 +1,112 @@
+body{
+    margin:0;
+    background: #ffffff!important;
+}
+.floor{
+    position: fixed;
+    bottom: 400px;
+    height: 100px;
+    width: 100%;
+    background: black;
+}
+
+.avatar-chooser{
+    min-width: 60vw;
+    min-height: 40vh;
+    transition: .8s;
+    transform: translateX(-100vw);
+}
+.avatar-chooser.active{
+    transform: translateX(0);
+}
+.d-sprite{
+    height: 300px;
+}
+.spr-option{
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    /* position: absolute; */
+}
+.green{
+    border-radius: 10px;
+    padding: 5px;
+    background: rgba(0, 128, 0, 0.158);
+    box-shadow: 0 0 8px 1px rgba(0, 0, 0, 0.308);
+    color: white;
+
+}
+.bigger{
+    font-size: 1.5rem;
+}
+.biggerr{
+    font-size: 2rem;
+}
+.biggerr.bigger{
+    font-size: 3rem;
+}
+
+.block{
+    position: fixed;
+    top: 2vh;
+    left: 50vw;
+    height: 20px;
+    width: 40px;
+    background: gray;
+}
+.block1{
+    position: fixed;
+    top: 2vh;
+    left: 10vw;
+    height: 20px;
+    width: 40px;
+    background: gray;
+}
+.block2{
+    position: fixed;
+    top: 2vh;
+    left: 20vw;
+    height: 20px;  
+
+}
+.circle{
+    position: fixed;
+    background: pink;
+    border-radius: 100%;
+}
+.circle_size{
+    width: 40;
+    height: 40;
+    left: 10vw;
+    top: 2%;
+}
+.block3{
+    position: fixed;
+    top: 2vh;
+    left: 30vw;
+    height: 20px;
+    width: 40px;
+    background: gray;
+}
+.block4{
+    position: fixed;
+    top: 2vh;
+    left: 70vw;
+    height: 20px;
+    width: 40px;
+    background: gray;
+}
+.text{
+    background: orange;
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+.clear_board{
+    position: fixed;
+    right: 2%;
+    top:2%;
+    color: black;    
+}
