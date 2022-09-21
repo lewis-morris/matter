@@ -85,7 +85,7 @@ function start_timer(){
         timeleft.innerText = `00:${String(seconds).padStart(2,"0")}`
         
         //stop if finished 
-        if(seconds > 30){
+        if(seconds > 29){
             console.log(distance)
             clearInterval(interv);
             show_end()
