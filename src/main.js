@@ -63,7 +63,9 @@ function log_score(event){
     if(event.name == "collisionActive"){
         event.pairs.forEach(pair =>{
             if(pair.bodyA !== pair.bodyB && (pair.bodyA.ob.el.hasAttribute("data-goal") || pair.bodyB.ob.el.hasAttribute("data-goal")) ){
-                update_score(pair.collision.depth)
+                if(!pair.bodyA.ob.el.hasAttribute("data-nopoints") && !pair.bodyB.ob.el.hasAttribute("data-nopoints")){
+                    update_score(pair.collision.depth)
+                }                
             }
         })
     }
