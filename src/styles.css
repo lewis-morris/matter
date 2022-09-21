@@ -124,3 +124,6 @@ body{
     right: 2%;
     top:2%;
 }
+.front{
+    z-index: 5;
+}
