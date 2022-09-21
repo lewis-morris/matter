@@ -108,8 +108,19 @@ body{
 }
 
 .clear_board{
+
+    color: black;    
+}
+.timer{
+    text-align: end;
+    color: white;    
+}
+.score{
+    text-align: end;
+    color: white;    
+}
+.stats{
     position: fixed;
     right: 2%;
     top:2%;
-    color: black;    
 }
