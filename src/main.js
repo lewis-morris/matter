@@ -60,10 +60,10 @@ function update_score(score){
     score_number = score_number + score
     current_score.innerText = Math.round(score_number)
     if(score_number > 10000 && score_level == 0){
-        window["goal_el"].el.src = window["goal_el"].el.src.replace(".", "_1.")
+        window["goal_el"].el.src = window["goal_el"].el.src.replace(".png", "_1.png")
         score_level = 1 
     }else if(score_number > 20000 && score_level == 1){
-        window["goal_el"].el.src = window["goal_el"].el.src.replace("_1.", "_2.")
+        window["goal_el"].el.src = window["goal_el"].el.src.replace("_1.png", "_2.png")
         score_level = 2
     }
 }
