@@ -12,9 +12,11 @@ body{
     width: 100%;
     background: black;
 }
-
+img{
+    z-index: 1;
+}
 .avatar-chooser{
-    width: 90%;
+    width: 95vw;
     min-height: 40vh;
     transition: .8s;
     transform: translateX(-100vw);
@@ -140,6 +142,7 @@ body{
 
     .avatar-chooser{
         min-width: 80vw;
+        width: auto;
         min-height: 40vh;
         transition: .8s;
         transform: translateX(-100vw);
@@ -155,11 +158,12 @@ body{
     }
 
     .avatar-chooser{
-        min-width: 60vw;
+        min-width: 40vw;
+        width: auto;
         min-height: 40vh;
         transition: .8s;
         transform: translateX(-100vw);
         z-index: 5;
     }
-    
+
 }

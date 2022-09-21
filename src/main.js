@@ -77,6 +77,9 @@ function start_games(){
     function decrease_floor(){
         if(screen.width < 450 ){
             document.querySelectorAll("[data-floor]").forEach(value=>{
+                value.style.height = "20px"
+            })
+            document.querySelectorAll("[data-wall]").forEach(value=>{
                 value.style.width = "20px"
             })
         }
