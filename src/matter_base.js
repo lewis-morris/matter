@@ -286,7 +286,10 @@ function engine() {
 
     // events
     
-
+    Events.on(engine, 'collisionStart', function(event) {
+        // change object colours to show those in an active collision (e.g. resting contact)
+        event_function(event)
+    });
     Events.on(engine, 'collisionActive', function(event) {
         // change object colours to show those in an active collision (e.g. resting contact)
         event_function(event)

@@ -60,7 +60,7 @@ function update_score(score){
 }
 function log_score(event){
     // console.log(event.name)
-    if(event.name == "collisionActive"){
+    if(event.name == "collisionActive" || event.name == "collisionStart"){
         event.pairs.forEach(pair =>{
             if(pair.bodyA !== pair.bodyB && (pair.bodyA.ob.el.hasAttribute("data-goal") || pair.bodyB.ob.el.hasAttribute("data-goal")) ){
                 if(!pair.bodyA.ob.el.hasAttribute("data-nopoints") && !pair.bodyB.ob.el.hasAttribute("data-nopoints")){
@@ -114,9 +114,9 @@ function start_games(){
     let knuckle = create_element("img", 100,200, "75px", "40px", {restitution:0.2, src: "./images/nuckle.png"}, "block")
     let mace = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/mace.png"}, "block")
     let brick = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
-    let brick1 = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
     let brick2 = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
-
+    let dildo = create_element("img", 100,200, "30px", "95px", {restitution:0.2, src: "./images/dildo.png"}, "block")
+    let chair = create_element("img", 100,200, "80px", "130px", {restitution:0.2, src: "./images/chair.png"}, "block")
 
     // starts the timer
     start_timer()
