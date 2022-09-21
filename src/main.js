@@ -17,6 +17,7 @@ let start
 let currentImage
 let current_score
 let stop
+let interv 
 
 let game_funcs
 let timeleft
@@ -49,6 +50,7 @@ function move_char(left){
 }
 function clear_board(){
     // resets the game board and opens the screen
+    clearInterval(interv)
     game_funcs.stop()
     choose_character.classList.add("active")
 }
@@ -71,7 +73,7 @@ function start_timer(){
     let start_time = new Date().getTime();
     let current_time
     timeleft = document.getElementById("timeleft")
-    let interv = setInterval(()=>{
+    interv = setInterval(()=>{
         // get current time
         current_time = new Date().getTime()
         //get difference 
@@ -104,7 +106,7 @@ function start_games(){
     // creates a goal element/ target
     window["goal_el"] = create_element("img", center_val,200,"100px","100px", {src: currentImage, data:{goal: "true"}})
     // attached it to a rope
-    create_constraint(goal_el, "div", center_val, 0, 2)
+    create_constraint(goal_el, "div", center_val, 25, 2)
     // creates weapons
     let bat = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/bat.png"}, "block")
     let knuckle = create_element("img", 100,200, "75px", "40px", {restitution:0.2, src: "./images/nuckle.png"}, "block")
