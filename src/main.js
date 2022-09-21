@@ -242,10 +242,16 @@ function load_leaderboard(){
     list_scores.innerHTML = ""
     
     ajax_with_func(`https://thecomputermade.me/scores`, "GET", (d)=>{
+
+        let winner = d.scores[0].name
+        let new_el = document.createElement("h3")
+        list_scores.appendChild(new_el)
+        new_el.innerHTML ="TOP SCORER" + winner
+        
         d.scores.forEach(value => {
             let new_el = document.createElement("div")
             list_scores.appendChild(new_el)
-            new_el.classList.add("col-12", "border", "rounded", "shadow")
+            new_el.classList.add("col-12", "border", "rounded", "shadow", "my-1")
             new_el.innerHTML = `<span class='fw-bolder'> ${value.name}</span> -  ${value.date} <br> SCORE: ${Math.round(value.score)}`
         })
     },true)
