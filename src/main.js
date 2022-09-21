@@ -1,4 +1,3 @@
-import { Engine, Body, Composite, Bodies, Events, Constraint, MouseConstraint, Mouse } from 'matter-js'
 import './styles.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import { create_element, create_constraint, engine } from "./matter_base"
@@ -6,6 +5,9 @@ import { create_element, create_constraint, engine } from "./matter_base"
 // let wh = window.innerHeight
 
 window["engine"] = engine
+window["matter_engine"] = null
+window["event_function"] = null
+window["goal_el"] = null
 
 let choose_character
 let end_game
@@ -15,6 +17,7 @@ let start
 let currentImage
 let current_score
 let stop
+
 let game_funcs
 let timeleft
 let startscreen, endscreen
@@ -45,37 +48,26 @@ function move_char(left){
 
 }
 function clear_board(){
+    // resets the game board and opens the screen
     game_funcs.stop()
     choose_character.classList.add("active")
 }
-function start_games(){
-    
-    game_funcs = new window["engine"]()
-    game_funcs.start()
-
-    let center_val = document.body.clientWidth / 2
-    
-    let new_el = create_element("img", center_val,200,"100px","100px", {src: currentImage})
-    create_constraint(new_el, "div", center_val, 0, 2)
-
-    let bat = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/bat.png"}, "block")
-    let knuckle = create_element("img", 100,200, "75px", "40px", {restitution:0.2, src: "./images/nuckle.png"}, "block")
-    let mace = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/mace.png"}, "block")
-    let brick = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
-    let brick1 = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
-    let brick2 = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
-
-    Events.on(engine, 'collisionActive', function(event) {
-        var pairs = event.pairs;
-
-        // change object colours to show those in an active collision (e.g. resting contact)
-        for (var i = 0; i < pairs.length; i++) {
-            var pair = pairs[i];
-            pair.bodyA
-            pair.bodyB
-        }
-    });
-
+function update_score(score){
+    // update the score of the hit
+    current_score.innerText = Math.round(Number(current_score.innerText) + score)
+}
+function log_score(event){
+    // console.log(event.name)
+    if(event.name == "collisionActive"){
+        event.pairs.forEach(pair =>{
+            if(pair.bodyA !== pair.bodyB && (pair.bodyA.ob.el.hasAttribute("data-goal") || pair.bodyB.ob.el.hasAttribute("data-goal")) ){
+                update_score(pair.collision.depth)
+            }
+        })
+    }
+}
+function start_timer(){
+    // gets dates etc
     let start_time = new Date().getTime();
     let current_time
     timeleft = document.getElementById("timeleft")
@@ -91,26 +83,55 @@ function start_games(){
         timeleft.innerText = `00:${String(seconds).padStart(2,"0")}`
         
         //stop if finished 
-        if(seconds > 2){
+        if(seconds > 30){
             console.log(distance)
             clearInterval(interv);
             show_end()
         }
     },200)
 }
+function start_games(){
+    // resets current score
+    current_score.innerText = 0
+    // sets the loggin function for collisions
+    event_function = log_score
+    // set the engine functions 
+    game_funcs = new window["engine"]()
+    // starts the game
+    game_funcs.start()
+    // gets the center screen value for client
+    let center_val = document.body.clientWidth / 2
+    // creates a goal element/ target
+    window["goal_el"] = create_element("img", center_val,200,"100px","100px", {src: currentImage, data:{goal: "true"}})
+    // attached it to a rope
+    create_constraint(goal_el, "div", center_val, 0, 2)
+    // creates weapons
+    let bat = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/bat.png"}, "block")
+    let knuckle = create_element("img", 100,200, "75px", "40px", {restitution:0.2, src: "./images/nuckle.png"}, "block")
+    let mace = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/mace.png"}, "block")
+    let brick = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
+    let brick1 = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
+    let brick2 = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
+
+
+    // starts the timer
+    start_timer()
+}
 function show_end(score){
+    // show the last screen with score etc
     startscreen.classList.add("d-none")
     endscreen.classList.remove("d-none")
     choose_character.classList.add("active")
     choose_character.querySelector(".score").innerText = current_score.innerText
 }
 function close_end(){
+    // close end screen asnd restart
     startscreen.classList.remove("d-none")
     endscreen.classList.add("d-none")
     clear_board()
 }
 (function(){
-
+    // setup stuff for page load
     function decrease_floor(){
         if(screen.width < 450 ){
             document.querySelectorAll("[data-floor]").forEach(value=>{

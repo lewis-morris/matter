@@ -1,4 +1,4 @@
-import { Engine, Body, Composite, Bodies, Events, Constraint, MouseConstraint, Mouse, Render } from 'matter-js'
+import { Engine, Body, Composite, Bodies, Events, Query, Constraint, MouseConstraint, Mouse, Render } from 'matter-js'
 
 let world
 window["blocks"] = []
@@ -91,6 +91,13 @@ function create_element(typ = "div", x = 0, y = 0, width="90px", height="90px", 
     el.style.left = `${x}px`
     el.style.top = `${y}px`
 
+    
+
+    if("data" in options){
+        Object.keys(options["data"]).forEach((key,index)=>{
+            el.setAttribute("data-" + key, options["data"][key])
+        })
+    }
     if(src) el.src = src;
 
     if(bods_type=="block"){
@@ -106,7 +113,7 @@ function create_element(typ = "div", x = 0, y = 0, width="90px", height="90px", 
     // Body.applyForce(block.body, { x: block.body.position.x, y: block.body.position.y }, { x: force, y: 0 })
     
 }    
-class Object {
+class Objecto {
 
     constructor(el, options = {}, is_generated = false) {
 
@@ -182,7 +189,7 @@ class Object {
 }
 
 
-class ConstraintO extends Object {
+class ConstraintO extends Objecto {
     constructor(other,x,y, ...params) {
         super(...params)
         this.body = Constraint.create({
@@ -236,7 +243,7 @@ class ConstraintO extends Object {
 
 
 }
-class Block extends Object {
+class Block extends Objecto {
     constructor(...params) {
         super(...params)
         this.body = Bodies.rectangle(this.centerX, this.centerY, this.bb.width, this.bb.height, this.merged_options);
@@ -246,7 +253,7 @@ class Block extends Object {
     }
 
 }
-class Circle extends Object {
+class Circle extends Objecto {
     constructor(...params) {
         super(...params)
         this.radius = this.width / 2;
@@ -268,6 +275,7 @@ function engine() {
 
 
     engine = Engine.create();
+    window["matter_engine"] = engine
     world = engine.world
     blocks = []
     constraints = []
@@ -277,7 +285,12 @@ function engine() {
 
 
     // events
+    
 
+    Events.on(engine, 'collisionActive', function(event) {
+        // change object colours to show those in an active collision (e.g. resting contact)
+        event_function(event)
+    });
 
     const mouse = Mouse.create(document.getElementById("game-board"))
     const mouse_ops = { mouse: mouse }
@@ -309,7 +322,12 @@ function engine() {
             constraint.update()
         })
     }
-
+    const check_colisions = () => {
+        if(goal_el){
+            event_function(Query.collides(goal_el.body, get_bodies()) )
+        }
+        
+    }
     function maybe_create() {
         // used to update all items in the world.
         blocks.forEach(block => {
@@ -326,6 +344,8 @@ function engine() {
             // update items
             if (running) {
                 update_items()
+                // check collisions
+                check_colisions()
                 // update physics
                 Engine.update(engine);
                 // run again
@@ -336,6 +356,14 @@ function engine() {
 
     }
 
+
+    function get_bodies(){
+        let bods = []
+        blocks.forEach(value =>{
+            bods.push(value.body)
+        })
+        return bods
+    }
     function stop() {
         running = false
         blocks.forEach(block => {
@@ -344,6 +372,7 @@ function engine() {
         constraints.forEach(constraint => {
             constraint.remove()
         })
+
     }
     function clear() {
 

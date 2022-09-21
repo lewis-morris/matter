@@ -24,7 +24,6 @@ img{
 }
 .avatar-chooser{
     width: 95vw;
-    min-height: 40vh;
     transition: .8s;
     transform: translateX(-100vw);
     z-index: 5;
@@ -154,7 +153,6 @@ img{
     .avatar-chooser{
         min-width: 80vw;
         width: auto;
-        min-height: 40vh;
         transition: .8s;
         transform: translateX(-100vw);
         z-index: 5;
@@ -171,7 +169,6 @@ img{
     .avatar-chooser{
         min-width: 40vw;
         width: auto;
-        min-height: 40vh;
         transition: .8s;
         transform: translateX(-100vw);
         z-index: 5;
