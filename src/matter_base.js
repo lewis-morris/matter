@@ -165,7 +165,7 @@ class Objecto {
         // check to see if off the page then kill
         let kill = left > this.clientX || left + this.width < 0 || top > this.clientY
         if (kill) {
-            this.remove()
+            // this.remove()
         } else {
             // else move the element
             this.el.style.position = "fixed";
@@ -228,7 +228,7 @@ class ConstraintO extends Objecto {
         // check to see if off the page then kill
         let kill = left > this.clientX || left + this.width < 0 || top > this.clientY
         if (kill) {
-            this.remove()
+            // this.remove()
         } else {
             // else move the element
             this.el.style.width = distance
