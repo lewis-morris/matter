@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=0.8" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, user-scalable=no" />
     
     <script language="javascript" type="text/javascript" src="main.bundle.js"></script>
     <script language="javascript" type="text/javascript" src="runtime.bundle.js"></script>
@@ -68,12 +68,12 @@
     <img src="./images/ball1.png" data-matter="circle" class="blockh circle circle_size">
     <img src="./images/ball1.png" data-matter="circle" class="blockh circle circle_size">
     <img src="./images/ball1.png" data-matter="circle" class="blockh circle circle_size">-->
-    <img src="./images/ball1.png" data-matter="circle" data-options='{"density":-1}'class="blockh circle circle_size"> 
+    <!-- <img src="./images/ball1.png" data-matter="circle" data-options='{"density":-1}'class="blockh circle circle_size">  -->
 
    
-    <div data-matter="rigid" data-angle="0" style="position:fixed; width: 100%; left:0; bottom: 0%; height: 50px; background-color: black; "></div>
-    <div data-matter="rigid" data-angle="0" style="position:fixed; width: 50px; left:0; top: 0; height: 100%; background-color: black; "></div>
-    <div data-matter="rigid" data-angle="0" style="position:fixed; width: 50px; right:0; top: 0; height: 100%; background-color: black; "></div>
+    <div data-floor data-matter="rigid" data-angle="0" style="position:fixed; width: 100%; left:0; bottom: 0%; height: 50px; background-color: black; "></div>
+    <div data-floor data-matter="rigid" data-angle="0" style="position:fixed; width: 50px; left:0; top: 0; height: 100%; background-color: black; "></div>
+    <div data-floor data-matter="rigid" data-angle="0" style="position:fixed; width: 50px; right:0; top: 0; height: 100%; background-color: black; "></div>
     <div class="stats d-flex flex-column text-end">
         <button class="mb-2 clear_board btn btn-primary" id="clear_board">Reset Game</button>
         <h3 class="timer" id="timer">Timer: <span>00:00</span></h3>                

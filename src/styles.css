@@ -14,17 +14,20 @@ body{
 }
 
 .avatar-chooser{
-    min-width: 60vw;
+    width: 90%;
     min-height: 40vh;
     transition: .8s;
     transform: translateX(-100vw);
+    z-index: 5;
 }
 .avatar-chooser.active{
     transform: translateX(0);
 }
 .d-sprite{
-    height: 300px;
+    height: 150px;
 }
+
+
 .spr-option{
     display: flex !important;
     justify-content: center;
@@ -123,7 +126,40 @@ body{
     position: fixed;
     right: 2%;
     top:2%;
+    z-index: 2;
 }
 .front{
     z-index: 5;
+}
+
+
+@media screen and (min-width: 480px) {
+    .d-sprite{
+        height: 225px;
+    }
+
+    .avatar-chooser{
+        min-width: 80vw;
+        min-height: 40vh;
+        transition: .8s;
+        transform: translateX(-100vw);
+        z-index: 5;
+    }
+
+}
+
+
+@media screen and (min-width: 900px) {
+    .d-sprite{
+        height: 300px;
+    }
+
+    .avatar-chooser{
+        min-width: 60vw;
+        min-height: 40vh;
+        transition: .8s;
+        transform: translateX(-100vw);
+        z-index: 5;
+    }
+    
 }

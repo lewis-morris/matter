@@ -73,8 +73,16 @@ function start_games(){
 }
 
 (function(){
+
+    function decrease_floor(){
+        if(screen.width < 450 ){
+            document.querySelectorAll("[data-floor]").forEach(value=>{
+                value.style.width = "20px"
+            })
+        }
+    }
     window.addEventListener("load", ()=>{
-        
+        decrease_floor()
         choose_character = document.getElementById("choose_char")
         choose_character.classList.add("active")
 
