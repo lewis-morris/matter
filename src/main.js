@@ -214,7 +214,7 @@ function ajax_with_func(url, httpType = "GET", func = null, is_json_response = t
 function send_score_to_server(){
     send_score.innerText = "Sending.."
     send_score.classList.add("disabled")
-    ajax_with_func(`http://18.134.236.107/scores?name=` + yourname.value + "&score=" + score_number, "PUT", ()=>{
+    ajax_with_func(`https://thecomputermade.me/scores?name=` + yourname.value + "&score=" + score_number, "PUT", ()=>{
         send_score.innerText = "Score Sent!!"
         send_score.classList.remove("btn-outline-success")
         send_score.classList.add("btn-outline-primary")
@@ -241,7 +241,7 @@ function load_leaderboard(){
     choose_character.classList.add("active")
     list_scores.innerHTML = ""
     
-    ajax_with_func(`http://18.134.236.107/scores`, "GET", (d)=>{
+    ajax_with_func(`https://thecomputermade.me/scores`, "GET", (d)=>{
         d.scores.forEach(value => {
             let new_el = document.createElement("div")
             list_scores.appendChild(new_el)
