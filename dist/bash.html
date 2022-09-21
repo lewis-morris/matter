@@ -94,6 +94,11 @@
                         <h5 class="score final my-3"></h5>
                         <p id="score_text"></p>
                     </div>
+                    <div>                        
+                        <hr class="w-100 bg-dark">
+                        <input id="your_name" placeholder="Whats your name" class="form-control">
+                        <button id="send" class="btn btn-outline-success my-2">Send Score</button>
+                    </div>
                     <div>
                         <hr class="w-100 bg-dark">
                         <button id="restart" class="btn btn-warning">Restart</button>
@@ -102,14 +107,29 @@
                 </div>
 
             </div>
-
+            <div class="d-none" id="leader_screen">
+                <div class="d-flex flex-column justify-content-center">
+                    <div>
+                        <h2>The Official Leader Board<h2>
+                    </div>
+                    <div id="list_scores">
+                        
+                    </div>
+                    <div>
+                        <hr class="w-100 bg-dark">
+                        <button id="close_leader" class="btn btn-warning">Close</button>
+                        <hr class="w-100 bg-dark">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
 
 
     <div class="stats d-flex flex-column text-end">
-        <button class="mb-2 clear_board btn btn-primary" id="clear_board">Reset Game</button>
+        <button class="mb-2 clear_board btn btn-secondary" id="leader_board_button">Leader Board</button>
+        <button class="mb-2 clear_board btn btn-primary" id="clear_board">Reset Game</button>        
         <h3 class="timer" id="timer">Timer: <span id="timeleft">00:00</span></h3>                
         <h3 class="score" id="score">Score: <span id="score_current">0</span></h3>           
     </div>

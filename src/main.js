@@ -24,6 +24,12 @@ let game_funcs
 let timeleft
 let startscreen, endscreen
 let score_text 
+let send_score
+let yourname
+let leader_board
+let leader_board_button
+let close_leader
+let list_scores 
 // page load bits
 
 function move_char(left){
@@ -104,6 +110,10 @@ function start_timer(){
     },200)
 }
 function start_games(){
+    send_score.classList.add("btn-outline-success")
+    send_score.classList.remove("btn-outline-primary")
+    send_score.innerText = "Send Score"
+    send_score.classList.remove("disabled")
     score_text.innerText = ""
     score_number = 0
     score_level = 0 
@@ -156,6 +166,60 @@ function show_score(){
         score_text.innerText = "STATUS: God Mode Activated"
     }
 }
+
+function ajax_with_func(url, httpType = "GET", func = null, is_json_response = true, send = null) {
+
+    var xhttp = new XMLHttpRequest();
+    let res
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            if (is_json_response) {
+                res = JSON.parse(this.response)
+            } else {
+                res = this.response
+            }
+
+            if (func) {
+                func(res)
+            }
+
+        } else if (this.readyState === 4 && this.status !== 200) {
+            if (is_json_response) {
+                res = JSON.parse(this.response)
+            } else {
+                res = this.response
+            }
+        } else {
+            console.log(this.readyState)
+            //console.log(this.status)
+            //console.log(this.statusText)
+            //return this.responseText
+        }
+    };
+
+    xhttp.open(httpType, url, true)
+    if (send == null) {
+        xhttp.send()
+    } else {
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(send))
+    }
+
+}
+
+
+
+
+
+function send_score_to_server(){
+    send_score.innerText = "Sending.."
+    send_score.classList.add("disabled")
+    ajax_with_func(`http://18.134.236.107/scores?name=` + yourname.value + "&score=" + score_number, "PUT", ()=>{
+        send_score.innerText = "Score Sent!!"
+        send_score.classList.remove("btn-outline-success")
+        send_score.classList.add("btn-outline-primary")
+    },true)
+}
 function show_end(score){
     // show the last screen with score etc
     show_score()
@@ -170,6 +234,30 @@ function close_end(){
     endscreen.classList.add("d-none")
     clear_board()
 }
+function load_leaderboard(){
+    leader_board.classList.remove("d-none")
+    endscreen.classList.add("d-none")
+    startscreen.classList.add("d-none")
+    choose_character.classList.add("active")
+    list_scores.innerHTML = ""
+    
+    ajax_with_func(`http://18.134.236.107/scores`, "GET", (d)=>{
+        d.scores.forEach(value => {
+            let new_el = document.createElement("div")
+            list_scores.appendChild(new_el)
+            new_el.classList.add("boarder", "shadow")
+            new_el.innerHTML = `${value.name} : SCORE ${Math.round(value.score)} - ${value.date}`
+        })
+    },true)
+
+}
+
+function close_leaderboard(){
+    choose_character.classList.remove("active")
+    leader_board.classList.add("d-none")
+    startscreen.classList.remove("d-none")
+}
+
 (function(){
     // setup stuff for page load
     function decrease_floor(){
@@ -183,6 +271,10 @@ function close_end(){
         }
     }
     window.addEventListener("load", ()=>{
+
+        // reinstate send score 
+
+
         decrease_floor()
         choose_character = document.getElementById("choose_char")
         choose_character.classList.add("active")
@@ -211,6 +303,15 @@ function close_end(){
         startscreen = document.getElementById("start_screen")
         endscreen = document.getElementById("end_screen")
         score_text = document.getElementById("score_text")
+        send_score = document.getElementById("send")
+        send_score.addEventListener("click", send_score_to_server)
+        yourname = document.getElementById("your_name")
+        leader_board = document.getElementById("leader_screen")
+        leader_board_button = document.getElementById("leader_board_button")
+        close_leader = document.getElementById("close_leader")
+        leader_board_button.addEventListener("click", load_leaderboard)
+        close_leader.addEventListener("click", close_leaderboard)
+        list_scores = document.getElementById("list_scores")
     })
 
 })()
