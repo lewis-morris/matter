@@ -18,7 +18,8 @@ let currentImage
 let current_score
 let stop
 let interv 
-
+let score_number = 0
+let score_level = 0
 let game_funcs
 let timeleft
 let startscreen, endscreen
@@ -56,7 +57,15 @@ function clear_board(){
 }
 function update_score(score){
     // update the score of the hit
-    current_score.innerText = Math.round(Number(current_score.innerText) + score)
+    score_number = score_number + score
+    current_score.innerText = Math.round(score_number)
+    if(score_number > 10000 && score_level == 0){
+        window["goal_el"].el.src = window["goal_el"].el.src.replace(".", "_1.")
+        score_level = 1 
+    }else if(score_number > 20000 && score_level == 1){
+        window["goal_el"].el.src = window["goal_el"].el.src.replace("_1.", "_2.")
+        score_level = 2
+    }
 }
 function log_score(event){
     // console.log(event.name)
@@ -95,6 +104,8 @@ function start_timer(){
     },200)
 }
 function start_games(){
+    score_number = 0
+    score_level = 0 
     // resets current score
     current_score.innerText = 0
     // sets the loggin function for collisions
