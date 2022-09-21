@@ -5,6 +5,13 @@ body{
     width: 100vw;
     overflow-y: hidden;
 }
+
+.game-board{
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    overflow-y: hidden;
+}
 .floor{
     position: fixed;
     bottom: 400px;
@@ -13,7 +20,7 @@ body{
     background: black;
 }
 img{
-    z-index: 1;
+    z-index: 2;
 }
 .avatar-chooser{
     width: 95vw;
@@ -123,6 +130,10 @@ img{
 .score{
     text-align: end;
     color: white;    
+}
+.score.final{
+    color:black;
+    text-align: center;
 }
 .stats{
     position: fixed;

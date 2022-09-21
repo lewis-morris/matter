@@ -74,12 +74,12 @@ function create_constraint(join_el, typ = "div", x = 0, y = 0, width=10, par = d
     el.style.left = `${x}px`
     el.style.top = `${y}px`
 
-    let block = new ConstraintO(join_el.body,x,y, el, true)
+    let block = new ConstraintO(join_el.body,x,y, el, {}, true)
     // Body.applyForce(block.body, { x: block.body.position.x, y: block.body.position.y }, { x: force, y: 0 })
     constraints.push(block)
     return block
 }   
-function create_element(typ = "div", x = 0, y = 0, width="90px", height="90px", options={},bods_type="circle", content = "", par = document.body) {
+function create_element(typ = "div", x = 0, y = 0, width="90px", height="90px", options={},bods_type="circle", content = "", par = document.getElementById("game-board")) {
     let {src, href } = options
     let block 
     let el = document.createElement(typ)
@@ -171,7 +171,12 @@ class Object {
     remove = () => {
         blocks = blocks.filter(x => x !== this)
         Composite.remove(world, this.body)
-        if(this.is_generated) this.el.remove();
+        if(this.is_generated){ 
+            this.el.remove()
+        }else{
+            this.el.removeAttribute("data-matter-done")
+        };
+        
     }
 
 }
@@ -274,7 +279,7 @@ function engine() {
     // events
 
 
-    const mouse = Mouse.create(document.body)
+    const mouse = Mouse.create(document.getElementById("game-board"))
     const mouse_ops = { mouse: mouse }
     let mcst = MouseConstraint.create(engine, mouse_ops)
     Composite.add(world, mcst)

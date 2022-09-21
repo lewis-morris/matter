@@ -5,15 +5,19 @@ import { create_element, create_constraint, engine } from "./matter_base"
 // let ww = window.innerWidth
 // let wh = window.innerHeight
 
-
+window["engine"] = engine
 
 let choose_character
+let end_game
 let left
 let right
 let start
 let currentImage
+let current_score
 let stop
 let game_funcs
+let timeleft
+let startscreen, endscreen
 
 // page load bits
 
@@ -45,11 +49,12 @@ function clear_board(){
     choose_character.classList.add("active")
 }
 function start_games(){
-    game_funcs = new engine()
+    
+    game_funcs = new window["engine"]()
     game_funcs.start()
 
     let center_val = document.body.clientWidth / 2
-
+    
     let new_el = create_element("img", center_val,200,"100px","100px", {src: currentImage})
     create_constraint(new_el, "div", center_val, 0, 2)
 
@@ -70,8 +75,40 @@ function start_games(){
             pair.bodyB
         }
     });
-}
 
+    let start_time = new Date().getTime();
+    let current_time
+    timeleft = document.getElementById("timeleft")
+    let interv = setInterval(()=>{
+        // get current time
+        current_time = new Date().getTime()
+        //get difference 
+        var distance = start_time - current_time;
+        // calc hrs mins secs
+        let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((distance % (1000 * 60)) / 1000) * -1;
+        // update element
+        timeleft.innerText = `00:${String(seconds).padStart(2,"0")}`
+        
+        //stop if finished 
+        if(seconds > 2){
+            console.log(distance)
+            clearInterval(interv);
+            show_end()
+        }
+    },200)
+}
+function show_end(score){
+    startscreen.classList.add("d-none")
+    endscreen.classList.remove("d-none")
+    choose_character.classList.add("active")
+    choose_character.querySelector(".score").innerText = current_score.innerText
+}
+function close_end(){
+    startscreen.classList.remove("d-none")
+    endscreen.classList.add("d-none")
+    clear_board()
+}
 (function(){
 
     function decrease_floor(){
@@ -88,6 +125,8 @@ function start_games(){
         decrease_floor()
         choose_character = document.getElementById("choose_char")
         choose_character.classList.add("active")
+
+
 
         left = document.getElementById("char_left")
         right = document.getElementById("char_right")
@@ -106,6 +145,10 @@ function start_games(){
             start_games()
         })
         document.getElementById("clear_board").addEventListener("click", clear_board)
+        document.getElementById("restart").addEventListener("click", close_end)
+        current_score = document.getElementById("score_current")
+        startscreen = document.getElementById("start_screen")
+        endscreen = document.getElementById("end_screen")
     })
 
 })()
