@@ -30,6 +30,8 @@ let leader_board
 let leader_board_button
 let close_leader
 let list_scores 
+let store
+
 // page load bits
 const start_money = 100
  
@@ -74,13 +76,19 @@ function update_score(score){
         score_level = 2
     }
 }
+
 function log_score(event){
     // console.log(event.name)
     if(event.name == "collisionActive" || event.name == "collisionStart"){
         event.pairs.forEach(pair =>{
-            if(pair.bodyA !== pair.bodyB && (pair.bodyA.ob.el.hasAttribute("data-goal") || pair.bodyB.ob.el.hasAttribute("data-goal")) ){
+            let goal = pair.bodyA.ob.el.hasAttribute("data-goal") || pair.bodyB.ob.el.hasAttribute("data-goal")            
+            // checks to see if the goat head is being hit by something other than the head
+            if(pair.bodyA !== pair.bodyB && (goal) ){
+                // get the other element 
+                let other = pair.bodyA.ob.el.hasAttribute("data-goal") ? pair.bodyB : pair.bodyA
                 if(!pair.bodyA.ob.el.hasAttribute("data-nopoints") && !pair.bodyB.ob.el.hasAttribute("data-nopoints")){
-                    update_score(pair.collision.depth)
+                    // attach with the depth of collision * density of the attacker
+                    update_score(pair.collision.depth * other.density)
                 }                
             }
         })
@@ -234,6 +242,8 @@ function change_screen(screen="start", active=true){
         startscreen.classList.add("d-none")
         endscreen.classList.add("d-none")
         leader_board.classList.remove("d-none")
+    }else if(screen=="store"){
+
     }
     if(active){
         choose_character.classList.add("active")
@@ -338,9 +348,7 @@ function close_leaderboard(){
         // decrease floor size for mobile
         decrease_floor()
         // set modal screen 
-        choose_character = document.getElementById("choose_char")
-        // load screen
-        change_screen(start)
+        choose_character = document.getElementById("choose_char")       
         // set_up_start_screen
         set_up_start_screen()
         // set up buttons on play screen
@@ -352,6 +360,8 @@ function close_leaderboard(){
         startscreen = document.getElementById("start_screen")
         // end screenn (points)
         endscreen = document.getElementById("end_screen")
+        // store screen (buy)
+        store = document.getElementById("store")
         // score text (i.e your a looser)
         score_text = document.getElementById("score_text")
         // send score button ( and send to server )
@@ -361,6 +371,8 @@ function close_leaderboard(){
         yourname = document.getElementById("your_name")
         // sets up the leaderboard bits
         setup_leader_board()
+        // load screen
+        change_screen(start)
     })
 
 })()
