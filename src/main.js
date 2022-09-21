@@ -245,8 +245,8 @@ function load_leaderboard(){
         d.scores.forEach(value => {
             let new_el = document.createElement("div")
             list_scores.appendChild(new_el)
-            new_el.classList.add("boarder", "shadow")
-            new_el.innerHTML = `${value.name} : SCORE ${Math.round(value.score)} - ${value.date}`
+            new_el.classList.add("col-12", "border", "rounded", "shadow")
+            new_el.innerHTML = `<span class='fw-bolder'> ${value.name}</span> -  ${value.date} <br> SCORE: ${Math.round(value.score)}`
         })
     },true)
 
