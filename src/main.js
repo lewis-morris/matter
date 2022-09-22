@@ -149,7 +149,7 @@ function clear_board(){
     // resets the game board and opens the screen
     clearInterval(interv)
     game_funcs.stop()
-    choose_character.classList.add("active")
+    change_screen("start")
 }
 
 function update_score(score){
@@ -233,7 +233,7 @@ function make_object(type){
     }else if(type=="ball"){
         create_element("img", 100,200, "50px", "50px", {density: 0.1*0.6, restitution:1, friction: 0, strength: 0.3, src: "./images/ball.png"}, "circle")
     }else if(type=="golf"){
-        create_element("img", 100,200, "10px", "10px", {density: 0.1*0.6, restitution:1, friction: 0, strength: .05, src: "./images/golf.png"}, "circle")
+        create_element("img", 100,200, "10px", "10px", {density: 0.1*0.6, restitution:1, friction: 0, strength: .025, src: "./images/golf.png"}, "circle")
     }
 }
 function start_games(){
@@ -380,6 +380,7 @@ function change_screen(screen="start", active=true){
         store.classList.add("d-none")
 
         startscreen.classList.remove("d-none")
+
     }else if(screen=="end"){
         startscreen.classList.add("d-none")        
         leader_board.classList.add("d-none")
