@@ -329,6 +329,7 @@ function change_screen(screen="start", active=true){
 
         endscreen.classList.remove("d-none")
     }else if(screen=="leader"){
+        update_plays()
         startscreen.classList.add("d-none")
         endscreen.classList.add("d-none")
         store.classList.add("d-none")
@@ -379,6 +380,11 @@ function load_leaderboard(){
         })
     },true)
 
+}
+function update_plays(){
+    ajax_with_func(`https://thecomputermade.me/plays`, "GET", (d)=>{
+        document.getElementById("playtimestotal").innerText = d.total_plays
+    },true)
 }
 
 function close_leaderboard(){
