@@ -14,7 +14,8 @@ function uuidv4() {
       (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
   }
-
+let True = true
+let False = false 
 let choose_character
 let end_game
 let left
@@ -39,28 +40,62 @@ let list_scores
 let store
 let shop_button
 let powerup_section
+let money_left
+let money_bags
 let activate_powerup_button
 let power_ups = [
     {"name":"Reverse Gravity","reverse_gravity":true, typ:"seconds"},
     {"name":"Double Gravity","double_gravity":true, typ:"seconds"},
     {"name":"No Gravity", "no_gravity": true, typ:"seconds"},
-    {"name":"Air Drop", "air_drop":true, typ:"times"},
+    {"name":"Golf Air Drop", "air_drop":true, typ:"times"},
+    {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Stella Air Drop", "air_drop":true, typ:"minor"},
     {"name":"Sticky Things", "sticky_items":true, typ:"seconds"}
 ]
-let current_powerup = power_ups[0]
+let bought_items
+let costs = {"bat": 50, "knuckle": 10, "mace": 55, "brick":20, "dildo": 15, "magnum": 7.5, "joint": 5, "chair": 30,
+        "stella": 10, "ball": 10 }
+
+let current_powerup
 
 class Money{
     constructor(){
         this.money = 100
         this.items = []
     }
-    buy(ob){
-        this.money -= ob.cost
-        this.items.push(ob)
+    removeItemOnce([src, name]) {
+        let found = false
+        let new_arr = []
+        this.items.forEach(value =>{
+            if(!found && value[0] == src && value[1] == name){
+                found = true
+            }else{
+                new_arr.push([src,name])
+            }
+        })
+        this.items = new_arr
     }
-    sell(ob){
-        this.money += ob.cost
-        this.items.remove(ob)
+    buy([src, name]){    
+        let cost = costs[name]    
+        if(cost <= this.money){
+            this.money -= costs[name]
+            this.items.push([src, name])
+            return true
+        }else{
+            return false
+        }
+
+    }
+    sell([src, name]){
+        let found = false
+        this.items.forEach(value =>{
+            if(!found && value[0] == src && value[1] == name){
+                this.money += costs[name]
+                this.removeItemOnce([src,name])
+                found = true                
+            }
+        })
+        return found
     }
 }
 
@@ -89,7 +124,26 @@ function move_char(left){
     change.classList.remove("d-none")
 }
 
+function move_weapon(left){
+    // used to select the next character
+    let active = document.querySelector(".shop-option:not(.d-none)")
+    let next = document.querySelectorAll(".shop-option")
 
+    let change = 0
+    let i = 0
+    next.forEach(value=>{
+        if(value == active){
+            if(i == next.length-1){
+                change = next[0]
+            }else{
+                change = next[i+1]
+            }           
+        }
+        i ++
+    })
+    active.classList.add("d-none")
+    change.classList.remove("d-none")
+}
 
 function clear_board(){
     // resets the game board and opens the screen
@@ -97,6 +151,7 @@ function clear_board(){
     game_funcs.stop()
     choose_character.classList.add("active")
 }
+
 function update_score(score){
     // update the score of the hit
     score_number = score_number + score
@@ -121,7 +176,9 @@ function log_score(event){
                 let other = pair.bodyA.ob.el.hasAttribute("data-goal") ? pair.bodyB : pair.bodyA
                 if(!pair.bodyA.ob.el.hasAttribute("data-nopoints") && !pair.bodyB.ob.el.hasAttribute("data-nopoints")){
                     // attach with the depth of collision * density of the attacker
-                    update_score(pair.collision.depth)
+                    let cur_score = pair.collision.depth 
+                    update_score(cur_score)
+                    other.ob.deduct_health(cur_score)
                 }                
             }
         })
@@ -134,7 +191,7 @@ function start_timer(){
     timeleft = document.getElementById("timeleft")
     interv = setInterval(()=>{
         // check for powerup 
-        // check_need_powerup()
+        check_need_powerup()
         // get current time
         current_time = new Date().getTime()
         //get difference 
@@ -156,25 +213,27 @@ function start_timer(){
 
 function make_object(type){
     if(type=="bat"){
-        create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/bat.png"}, "block")
+        create_element("img", 100,200, "200px", "35px", {density: 0.1*0.6, restitution:0.50, friction: 0.50, strength: 0.30, src: "./images/bat.png"}, "block")
     }else if(type=="knuckle"){
-        create_element("img", 100,200, "75px", "40px", {restitution:0.2, src: "./images/nuckle.png"}, "block")
+        create_element("img", 100,200, "75px", "40px", {density: 0.1*0.6, restitution:0.10, friction: 0.7, strength: 0.8, src: "./images/nuckle.png"}, "block")
     }else if(type=="mace"){
-        create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/mace.png"}, "block")
+        create_element("img", 100,200, "200px", "35px", {density: 0.1*0.6, restitution:0.3, friction: 0.2, strength: 0.90, src: "./images/mace.png"}, "block")
     }else if(type=="brick"){
-        create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
+        create_element("img", 100,200, "100px", "50px", {density: 0.1*0.6, restitution:0.05, friction: 0.05, strength: 0.70, src: "./images/brick.png"}, "block")
     }else if(type=="dildo"){
-        create_element("img", 100,200, "26px", "105px", {restitution:0.2, src: "./images/dildo.png"}, "block")
+        create_element("img", 100,200, "26px", "105px", {density: 0.1*0.6, restitution:0.7, friction: 0.7, strength: 0.10, src: "./images/dildo.png"}, "block")
     }else if(type=="magnum"){
-        create_element("img", 100,200, "26px", "105px", {restitution:0.2, src: "./images/magnum.png"}, "block")
+        create_element("img", 100,200, "26px", "105px", {density: 0.1*0.6, restitution:0.05, friction: 0.05, strength: 0.70, src: "./images/magnum.png"}, "block")
     }else if(type=="joint"){
-        create_element("img", 100,200, "30px", "72px", {restitution:0.2, src: "./images/joint.png"}, "block")
+        create_element("img", 100,200, "76px", "15px", {density: 0.1*0.6, restitution:0.1, friction: 0.8, strength: 0.1, src: "./images/joint.png"}, "block")
     }else if(type=="chair"){
-        create_element("img", 100,200, "80px", "130px", {restitution:0.2, src: "./images/chair.png"}, "block")
+        create_element("img", 100,200, "80px", "130px", {density: 0.1*0.6, restitution:0.7, friction: 0.5, strength: 0.55, src: "./images/chair.png"}, "block")
     }else if(type=="stella"){
-        create_element("img", 100,200, "37px", "90px", {restitution:0.2, src: "./images/stella.png"}, "block")
+        create_element("img", 100,200, "37px", "90px", {density: 0.1*0.6, restitution:0.2, friction: 0.8, strength: 0.2, src: "./images/stella.png"}, "block")
     }else if(type=="ball"){
-        create_element("img", 100,200, "50px", "50px", {restitution:0.2, src: "./images/ball.png"}, "circle")
+        create_element("img", 100,200, "50px", "50px", {density: 0.1*0.6, restitution:1, friction: 0, strength: 0.3, src: "./images/ball.png"}, "circle")
+    }else if(type=="golf"){
+        create_element("img", 100,200, "10px", "10px", {density: 0.1*0.6, restitution:1, friction: 0, strength: .05, src: "./images/golf.png"}, "circle")
     }
 }
 function start_games(){
@@ -206,9 +265,8 @@ function start_games(){
     // attached it to a rope
     create_constraint(goal_el, "div", center_val, 25, 2)
     // creates weapons
-    let items = ["bat","knuckle","mace","brick","dildo","magnum","joint","stella","chair","ball"]
-    items.forEach(value => {
-        make_object(value)  
+    money_bags.items.forEach(value => {
+        make_object(value[1])  
     })
       
     // starts the timer
@@ -341,7 +399,8 @@ function change_screen(screen="start", active=true){
         leader_board.classList.add("d-none")
 
         store.classList.remove("d-none")
-        let money_bags = new Money()        
+        money_bags = new Money()       
+        money_left.innerText = money_bags.money
     }
     if(active){
         choose_character.classList.add("active")
@@ -349,6 +408,38 @@ function change_screen(screen="start", active=true){
         choose_character.classList.remove("active")
     }
 }
+function update_money_field(){
+    money_left.innerText = money_bags.money
+}
+function get_active_details(){
+    let active = document.querySelector(".shop-option:not(.d-none)")
+    let img_src = active.querySelector("img").src
+    return [img_src, active.getAttribute("data-item")]
+}
+function buy_item(){
+    let item = get_active_details()
+    if(money_bags.buy(item)){
+        let new_el = document.createElement("img")
+        bought_items.appendChild(new_el)
+        new_el.src = item[0]
+        new_el.classList.add("sm_img", "pe-2")
+    }
+    update_money_field()
+}
+function sell_item(){
+    let item = get_active_details()
+    if(money_bags.sell(item)){
+        let found = false
+        document.querySelectorAll(".sm_img").forEach(value => {
+            if(!found && value.src == item[0]){
+                value.remove()
+                found = true
+            }
+        })
+    }
+    update_money_field()
+}
+
 function show_end(score){
     // show the last screen with score etc
     show_score()
@@ -397,31 +488,73 @@ function randomIntFromInterval(min, max) { // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 function check_powerup_number_set(){
-    if(current_powerup.tpy== "seconds"){
+    if(current_powerup.typ === "seconds"){
         return randomIntFromInterval(2000, 15000)
-    }else if(current_powerup.tpy== "times"){
-        return randomIntFromInterval(5, 100)
+    }else if(current_powerup.typ === "times"){
+        return randomIntFromInterval(30, 150)
+    }else if(current_powerup.typ === "minor"){
+        return randomIntFromInterval(2, 6)
     }
+}
+function check_powerup_text(){
+    if(current_powerup.typ === "seconds"){
+        return ` for ${Math.round(current_powerup.do_times/1000)} seconds`
+    }else if(current_powerup.typ === "times"){
+        return ` ${Math.round(current_powerup.do_times)} times`
+    }else if(current_powerup.typ === "minor"){
+        return ` ${Math.round(current_powerup.do_times)} times`
+    }
+    
 }
 function run_current_powerup_function(){
 
     if(current_powerup.name == "Reverse Gravity"){
-        return () => {game_funcs.change_gravity(0,-1, current_powerup.do_times)}
+
+        return () => {game_funcs.change_gravity(0,-1.5, current_powerup.do_times)}
+
     }else if(current_powerup.name == "Double Gravity"){
-        return () => {game_funcs.change_gravity(0,2.5, current_powerup.do_times)}
+
+        return () => {game_funcs.change_gravity(0,3, current_powerup.do_times)}
+
     }else if(current_powerup.name == "No Gravity"){
+
         return () => {game_funcs.change_gravity(0,0, current_powerup.do_times)}
-    }else if(current_powerup.name == "Air Drop"){
-        return () => {game_funcs.golf_spam(current_powerup.do_times)}
+
+    }else if(current_powerup.name == "Golf Air Drop"){
+
+        return () => {         
+            for(let x = 0; x < current_powerup.do_times; x++){
+                make_object("golf")
+            }            
+
+        }
+    }else if(current_powerup.name == "Bat Air Drop"){
+
+        return () => {         
+            for(let x = 0; x < current_powerup.do_times; x++){
+                make_object("bat")
+            }            
+        }
+
     }else if(current_powerup.name == "Sticky Things"){
-        return () => {game_funcs.golf_spam(current_powerup.do_times)}
+
+        return () => {game_funcs.make_sticky(current_powerup.do_times)}
+
+    }else if(current_powerup.name == "Stella Air Drop"){
+
+        return () => {         
+            for(let x = 0; x < current_powerup.do_times; x++){
+                make_object("stella")
+            }            
+        }
+
     }
 }
 function check_need_powerup(){
-    if(randomIntFromInterval(1,30)==1 && !is_powerup_active()){
+    if(randomIntFromInterval(1,25)==1 && !is_powerup_active()){
         current_powerup = power_ups[Math.floor(Math.random()*power_ups.length)];  
         current_powerup.do_times = check_powerup_number_set()      
-        activate_powerup_button.innerText = current_powerup.name        
+        activate_powerup_button.innerText = current_powerup.name + check_powerup_text()
         activate_powerup()
     }
 }
@@ -492,12 +625,29 @@ function deactivate_powerup(){
         list_scores = document.getElementById("list_scores")
     }
     function setup_shop(){
+        money_left = document.getElementById("money_left")
         store = document.getElementById("store")
         shop_button = document.getElementById("goto_shop")
         shop_button.addEventListener("click", ()=>{
             change_screen("store")
         })
+
+        let sleft = document.getElementById("shop_left")
+        let sright = document.getElementById("shop_right")
+
+        sleft.addEventListener("click", (e)=>{
+            move_weapon(true)
+        })
+        sright.addEventListener("click", (e)=>{
+            move_weapon(false)
+        })
+
+        let add_item = document.getElementById("add_item")
+        add_item.addEventListener("click", buy_item)
+        let remove_item = document.getElementById("remove_item")
+        remove_item.addEventListener("click", sell_item)     
         
+        bought_items = document.getElementById("bought_items")
     }
 
 
@@ -547,6 +697,7 @@ function deactivate_powerup(){
         change_screen(start)
         // setup powerup buttons
         setup_powerups()
+        
     })
 
 })()

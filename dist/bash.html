@@ -10,17 +10,15 @@
 <body>
 
     <div class="game-board" id="game-board">
-        <div data-nopoints data-matter="rigid" data-angle="0" style="position:fixed; width: 100%; left:0; top: -100px; height: 100px; background-color: black; "></div>
-        <div data-nopoints data-floor data-matter="rigid" data-angle="0" style="position:fixed; width: 100%; left:0; top: 0%; height: 50px; background-color: black; "></div>
 
-        <div data-nopoints data-floor data-matter="rigid" data-angle="0" style="position:fixed; width: 100%; left:0; bottom: 0%; height: 50px; background-color: black; "></div>
-        <div data-nopoints data-matter="rigid" data-angle="0" style="position:fixed; width: 100%; left:0; bottom: -100px; height: 100px; background-color: black; "></div>
+        <div data-nopoints data-floor data-matter="rigid" data-angle="0" style="position:fixed; width: 100%; left:0; top: -50px; height: 100px; background-color: black; "></div>
 
-        <div data-nopoints data-matter="rigid" data-angle="0" style="position:fixed; width: 100px; left:-100px; top: 0; height: 100%; background-color: black; "></div>
-        <div data-nopoints data-wall data-matter="rigid" data-angle="0" style="position:fixed; width: 50px; left:0; top: 0; height: 100%; background-color: black; "></div>
+        <div data-nopoints data-floor data-matter="rigid" data-angle="0" style="position:fixed; width: 100%; left:0; bottom: -50px; height: 100px; background-color: black; "></div>
 
-        <div data-nopoints data-matter="rigid" data-angle="0" style="position:fixed; width: 100px; right:-100px; top: 0; height: 100%; background-color: black; "></div>
-        <div data-nopoints data-wall data-matter="rigid" data-angle="0" style="position:fixed; width: 50px; right:0; top: 0; height: 100%; background-color: black; "></div>
+
+        <div data-nopoints data-wall data-matter="rigid" data-angle="0" style="position:fixed; width: 100px; left:-50px; top: 0; height: 100%; background-color: black; "></div>
+
+        <div data-nopoints data-wall data-matter="rigid" data-angle="0" style="position:fixed; width: 100px; right:-50px; top: 0; height: 100%; background-color: black; "></div>
     </div>
 
     <div class="front d-flex justify-content-center align-items-center h-100 bg-dark">
@@ -96,10 +94,288 @@
             </div>
 
             <div class="d-none" id="store">
-                <div class="d-flex flex-column justify-content-center">
+                <div class="d-flex flex-column justify-content-center w-100">
                     <h3>STORE</h3>
                     <hr>
-                    <button id="start">Start Playing</button>
+                    <div class="d-flex justify-content-between align-items-center my-5 w-100">
+                        <img id="shop_left" src="./images/arrow1.png">
+                        <div class="m-3 w-100">
+                            <div data-item="bat" class="shop-option">
+                                <img class="w-sprite" src="./images/bat.png">
+                                <h2 class="my-2 mb-3">Baseball Bat</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0 ">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">30/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">60/100</div>
+                                    </div>     
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">£50</div>
+                                    </div>                                    
+                                </div>
+
+                            </div>
+                            <div data-item="knuckle" class="shop-option d-none">
+                                <img class="w-sprite" src="./images/nuckle.png">
+                                <h2 class="my-2 ">Knuckle Duster</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">10/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 70%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">70/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 80%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">80/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">60/100</div>
+                                    </div>  
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">£10</div>
+                                    </div>                                    
+                                </div>
+                            </div>                          
+                            <div data-item="mace" class="shop-option d-none">
+                                <img class="w-sprite" src="./images/mace.png">
+                                <h2 class="my-2 ">Mace</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 30%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">30/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 20%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">20/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 90%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">90/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 70%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">70/100</div>
+                                    </div>  
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 55%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">£55</div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                            <div data-item="brick" class="shop-option d-none">
+                                <img class="w-sprite" src="./images/brick.png">
+                                <h2 class="my-2 ">Brick</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 5%;" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100">5/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 5%;" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100">5/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 70%;" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">70/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 80%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">80/100</div>
+                                    </div>  
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 20%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">£20</div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                            <div data-item="dildo" class="shop-option d-none">
+                                <img class="w-sprite" src="./images/dildo.png">
+                                <h2 class="my-2 ">Black Dildo</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 80%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">80/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 80%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">80/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 20%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">20/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 20%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">20/100</div>
+                                    </div>  
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 15%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">£15</div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                            <div data-item="magnum" class="shop-option d-none">
+                                <img class="w-sprite" src="./images/magnum.png">
+                                <h2 class="my-2 ">Maggy</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 70%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">70/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 70%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">70/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 10%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">10/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 30%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">30/100</div>
+                                    </div>  
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 7.5%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">£7.50</div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                            <div data-item="joint" class="shop-option d-none">
+                                <img class="w-sprite" src="./images/joint.png">
+                                <h2 class="my-2 ">Joint</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">10/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 80%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">80/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 10%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">10/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 20%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">20/100</div>
+                                    </div>  
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 5%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">£5</div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                            <div data-item="chair" class="shop-option d-none">
+                                <img class="w-sprite" src="./images/chair.png">
+                                <h2 class="my-2 ">Chair</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 70%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">70/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 50%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">50/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 55%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">55/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 45%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">45/100</div>
+                                    </div>  
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 30%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">£30</div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                            <div data-item="stella" class="shop-option d-none">
+                                <img class="w-sprite" src="./images/stella.png">
+                                <h2 class="my-2 ">Stella Can</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 20%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">20/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 80%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">80/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 20%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">20/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 10%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">10/100</div>
+                                    </div>  
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">£10</div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                            <div data-item="ball" class="shop-option d-none">
+                                <img class="w-sprite" src="./images/ball.png">
+                                <h2 class="my-2 ">Ball</h2>
+                                <div class="d-flex flex-column">
+                                    <h5 class="my-0 py-0">Bouncy-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 100%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">100/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0">Sticky-ness</h5>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 0%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">0/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Strength</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 30%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">30/100</div>
+                                    </div>
+                                    <h5 class="my-0 py-0 mb-2">Density</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 20%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">20/100</div>
+                                    </div>  
+                                    <h5 class="my-0 py-0 mb-2">Cost</h5>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated text-dark" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">£10</div>
+                                    </div>                                    
+                                </div>
+                            </div>                           
+                        </div>
+                        <img id="shop_right"src="./images/arrow1.png">
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span id="add_item" class="clickable display-2 fw-bolder text-success">+</span>
+                        <span id="remove_item" class="clickable display-2 fw-bolder text-danger">-</span>                    
+                    </div>
+                    <p>Bought Items:</p>
+                    <div class="d-flex justify-content-between"> 
+                        <div id="bought_items" class="d-flex flex-wrap">
+
+                        </div>               
+                    </div>
+                    <h5>Money Left: £<span id="money_left"></span></h5>
+                    <button class="btn btn-outline-dark" id="start">Start Playing</button>
                 </div>
 
             </div>

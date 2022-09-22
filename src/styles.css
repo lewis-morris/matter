@@ -30,21 +30,33 @@ img{
 .shrunk.active{
     transform: scale(1);
 }
-
+.sm_img{
+    height: 15px;
+}
 .avatar-chooser{
     width: 95vw;
     transition: .8s;
     transform: translateX(-100vw);
     z-index: 5;
 }
+
 .avatar-chooser.active{
     transform: translateX(0);
 }
+
 .d-sprite{
     height: 150px;
+    max-height: 100px;
 }
 
+.w-sprite{
+    max-width: 100%;
+    max-height: 30vh;
+}
 
+.clickable{
+    cursor: pointer;
+}
 .spr-option{
     display: flex !important;
     justify-content: center;
@@ -152,11 +164,15 @@ img{
 .front{
     z-index: 5;
 }
-
+#store{
+    width: 100%
+}
 
 @media screen and (min-width: 480px) {
     .d-sprite{
         height: 225px;
+        max-height: 200px;
+        
     }
 
     .avatar-chooser{
@@ -173,6 +189,7 @@ img{
 @media screen and (min-width: 900px) {
     .d-sprite{
         height: 300px;
+        max-height: 200px;
     }
 
     .avatar-chooser{

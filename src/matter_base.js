@@ -116,7 +116,7 @@ function create_element(typ = "div", x = 0, y = 0, width="90px", height="90px", 
 class Objecto {
 
     constructor(el, options = {}, is_generated = false) {
-
+        this.health = "strength" in options? 10000*options["strength"] : 100
         this.el = el
         this.el.style.display = "inline";
         this.el.setAttribute("draggable", "false")
@@ -151,6 +151,16 @@ class Objecto {
             }, ...options, ...dOptions
         };
 
+    }
+    deduct_health(value){
+        this.health -= value
+        console.log(this.health)
+        if(this.health < 0){
+            this.el.src = "./images/explosion.png"
+            setTimeout(()=>{
+                this.remove()
+            },500)
+        }
     }
     get_center_point(){
         return this.body.position
@@ -347,11 +357,7 @@ function engine() {
         },time)
     }
 
-    function golf_spam(times){
-        for(let x = 0; x < times; x++){
-            create_element("img", 100,200, "20px", "20px", {restitution:0.8, src: "./images/golf.png"}, "circle")
-        }
-    }
+
 
     function make_sticky(time){
         blocks.forEach(block => {
@@ -407,7 +413,7 @@ function engine() {
 
     }
 
-    return { start: start, stop: stop, change_gravity: change_gravity, golf_spam: golf_spam, make_sticky:make_sticky}
+    return { start: start, stop: stop, change_gravity: change_gravity, make_sticky:make_sticky}
 }
 
 export { engine, create_element, create_constraint }
