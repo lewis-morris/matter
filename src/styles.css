@@ -22,6 +22,15 @@ body{
 img{
     z-index: 2;
 }
+
+.shrunk{
+    transition: .3s cubic-bezier(.25,.55,.44,1.91);
+    transform: scale(0.01);
+}
+.shrunk.active{
+    transform: scale(1);
+}
+
 .avatar-chooser{
     width: 95vw;
     transition: .8s;

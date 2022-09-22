@@ -9,6 +9,12 @@ window["matter_engine"] = null
 window["event_function"] = null
 window["goal_el"] = null
 
+function uuidv4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+  }
+
 let choose_character
 let end_game
 let left
@@ -31,6 +37,33 @@ let leader_board_button
 let close_leader
 let list_scores 
 let store
+let shop_button
+let powerup_section
+let activate_powerup_button
+let power_ups = [
+    {"name":"Reverse Gravity","reverse_gravity":true, typ:"seconds"},
+    {"name":"Double Gravity","double_gravity":true, typ:"seconds"},
+    {"name":"No Gravity", "no_gravity": true, typ:"seconds"},
+    {"name":"Air Drop", "air_drop":true, typ:"times"},
+    {"name":"Sticky Things", "sticky_items":true, typ:"seconds"}
+]
+let current_powerup = power_ups[0]
+
+class Money{
+    constructor(){
+        this.money = 100
+        this.items = []
+    }
+    buy(ob){
+        this.money -= ob.cost
+        this.items.push(ob)
+    }
+    sell(ob){
+        this.money += ob.cost
+        this.items.remove(ob)
+    }
+}
+
 
 // page load bits
 const start_money = 100
@@ -100,6 +133,8 @@ function start_timer(){
     let current_time
     timeleft = document.getElementById("timeleft")
     interv = setInterval(()=>{
+        // check for powerup 
+        // check_need_powerup()
         // get current time
         current_time = new Date().getTime()
         //get difference 
@@ -118,7 +153,37 @@ function start_timer(){
         }
     },200)
 }
+
+function make_object(type){
+    if(type=="bat"){
+        create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/bat.png"}, "block")
+    }else if(type=="knuckle"){
+        create_element("img", 100,200, "75px", "40px", {restitution:0.2, src: "./images/nuckle.png"}, "block")
+    }else if(type=="mace"){
+        create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/mace.png"}, "block")
+    }else if(type=="brick"){
+        create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
+    }else if(type=="dildo"){
+        create_element("img", 100,200, "26px", "105px", {restitution:0.2, src: "./images/dildo.png"}, "block")
+    }else if(type=="magnum"){
+        create_element("img", 100,200, "26px", "105px", {restitution:0.2, src: "./images/magnum.png"}, "block")
+    }else if(type=="joint"){
+        create_element("img", 100,200, "30px", "72px", {restitution:0.2, src: "./images/joint.png"}, "block")
+    }else if(type=="chair"){
+        create_element("img", 100,200, "80px", "130px", {restitution:0.2, src: "./images/chair.png"}, "block")
+    }else if(type=="stella"){
+        create_element("img", 100,200, "37px", "90px", {restitution:0.2, src: "./images/stella.png"}, "block")
+    }else if(type=="ball"){
+        create_element("img", 100,200, "50px", "50px", {restitution:0.2, src: "./images/ball.png"}, "circle")
+    }
+}
 function start_games(){
+
+    // send play 
+    send_play_to_server()
+    // close powerup incase left open
+    deactivate_powerup()
+
     send_score.classList.add("btn-outline-success")
     send_score.classList.remove("btn-outline-primary")
     send_score.innerText = "Send Score"
@@ -141,19 +206,15 @@ function start_games(){
     // attached it to a rope
     create_constraint(goal_el, "div", center_val, 25, 2)
     // creates weapons
-    let bat = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/bat.png"}, "block")
-    let knuckle = create_element("img", 100,200, "75px", "40px", {restitution:0.2, src: "./images/nuckle.png"}, "block")
-    let mace = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/mace.png"}, "block")
-    let brick2 = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
-    let dildo = create_element("img", 100,200, "26px", "105px", {restitution:0.2, src: "./images/dildo.png"}, "block")
-    let magnum = create_element("img", 100,200, "30px", "72px", {restitution:0.2, src: "./images/magnum.png"}, "block")
-    let joint = create_element("img", 100,200, "87px", "20px", {restitution:0.2, src: "./images/joint.png"}, "block")
-    let stella = create_element("img", 100,200, "37px", "90px", {restitution:0.2, src: "./images/stella.png"}, "block")
-    let chair = create_element("img", 100,200, "80px", "130px", {restitution:0.2, src: "./images/chair.png"}, "block")
-    
-
+    let items = ["bat","knuckle","mace","brick","dildo","magnum","joint","stella","chair","ball"]
+    items.forEach(value => {
+        make_object(value)  
+    })
+      
     // starts the timer
     start_timer()
+
+
 }
 function show_score(){
     if(score_number < 500){
@@ -230,7 +291,7 @@ function send_score_to_server(){
         yourname.classList.remove("is-invalid")
         send_score.innerText = "Sending.."
         send_score.classList.add("disabled")
-        ajax_with_func(`https://thecomputermade.me/scores?name=` + yourname.value + "&score=" + score_number, "PUT", ()=>{
+        ajax_with_func(`https://thecomputermade.me/scores?name=` + yourname.value + "&score=" + score_number + "&uuid=" + localStorage.getItem('uuid'), "PUT", ()=>{
             send_score.innerText = "Score Sent!!"
             send_score.classList.remove("btn-outline-success")
             send_score.classList.add("btn-outline-primary")
@@ -238,21 +299,48 @@ function send_score_to_server(){
     }
 
 }
+
+
+function send_play_to_server(){
+    if(yourname.value == ""){
+        yourname.classList.add("is-invalid")
+    }else{
+        yourname.classList.remove("is-invalid")
+        send_score.innerText = "Sending.."
+        send_score.classList.add("disabled")
+        ajax_with_func(`https://thecomputermade.me/plays?uuid=` + localStorage.getItem('uuid'), "PUT", ()=>{
+           
+        },true)
+    }
+
+}
+
 function change_screen(screen="start", active=true){
     if(screen=="start"){
-        startscreen.classList.remove("d-none")
         endscreen.classList.add("d-none")
         leader_board.classList.add("d-none")
+        store.classList.add("d-none")
+
+        startscreen.classList.remove("d-none")
     }else if(screen=="end"){
-        startscreen.classList.add("d-none")
-        endscreen.classList.remove("d-none")
+        startscreen.classList.add("d-none")        
         leader_board.classList.add("d-none")
+        store.classList.add("d-none")
+
+        endscreen.classList.remove("d-none")
     }else if(screen=="leader"){
         startscreen.classList.add("d-none")
         endscreen.classList.add("d-none")
+        store.classList.add("d-none")
+
         leader_board.classList.remove("d-none")
     }else if(screen=="store"){
+        startscreen.classList.add("d-none")
+        endscreen.classList.add("d-none")
+        leader_board.classList.add("d-none")
 
+        store.classList.remove("d-none")
+        let money_bags = new Money()        
     }
     if(active){
         choose_character.classList.add("active")
@@ -299,6 +387,52 @@ function close_leaderboard(){
     leader_board.classList.add("d-none")
     startscreen.classList.remove("d-none")
 }
+function randomIntFromInterval(min, max) { // min and max included 
+    return Math.floor(Math.random() * (max - min + 1) + min)
+}
+function check_powerup_number_set(){
+    if(current_powerup.tpy== "seconds"){
+        return randomIntFromInterval(2000, 15000)
+    }else if(current_powerup.tpy== "times"){
+        return randomIntFromInterval(5, 100)
+    }
+}
+function run_current_powerup_function(){
+
+    if(current_powerup.name == "Reverse Gravity"){
+        return () => {game_funcs.change_gravity(0,-1, current_powerup.do_times)}
+    }else if(current_powerup.name == "Double Gravity"){
+        return () => {game_funcs.change_gravity(0,2.5, current_powerup.do_times)}
+    }else if(current_powerup.name == "No Gravity"){
+        return () => {game_funcs.change_gravity(0,0, current_powerup.do_times)}
+    }else if(current_powerup.name == "Air Drop"){
+        return () => {game_funcs.golf_spam(current_powerup.do_times)}
+    }else if(current_powerup.name == "Sticky Things"){
+        return () => {game_funcs.golf_spam(current_powerup.do_times)}
+    }
+}
+function check_need_powerup(){
+    if(randomIntFromInterval(1,30)==1 && !is_powerup_active()){
+        current_powerup = power_ups[Math.floor(Math.random()*power_ups.length)];  
+        current_powerup.do_times = check_powerup_number_set()      
+        activate_powerup_button.innerText = current_powerup.name        
+        activate_powerup()
+    }
+}
+function do_powerup(){
+    console.log(current_powerup.name)
+    run_current_powerup_function()()
+}
+function is_powerup_active(){
+    return powerup_section.classList.contains("active")
+}
+function activate_powerup(){
+    powerup_section.classList.add("active")
+}
+function deactivate_powerup(){
+    powerup_section.classList.remove("active")
+}
+
 
 (function(){
     // setup stuff for page load
@@ -351,9 +485,32 @@ function close_leaderboard(){
         // list_scores element (where the scores go)
         list_scores = document.getElementById("list_scores")
     }
+    function setup_shop(){
+        store = document.getElementById("store")
+        shop_button = document.getElementById("goto_shop")
+        shop_button.addEventListener("click", ()=>{
+            change_screen("store")
+        })
+        
+    }
 
+
+    function setup_powerups(){
+        // powerup section
+        powerup_section = document.getElementById("powerup_section")
+        activate_powerup_button = document.getElementById("activate_powerup")
+        activate_powerup_button.addEventListener("click", ()=>{
+            do_powerup()
+            deactivate_powerup()       
+        })
+    }
+    function check_uuid(){
+        if(!localStorage.getItem('uuid')) localStorage.setItem('uuid', uuidv4());
+    }
+    
     window.addEventListener("load", ()=>{
-
+        // check_uuid
+        check_uuid()
         // decrease floor size for mobile
         decrease_floor()
         // set modal screen 
@@ -369,8 +526,8 @@ function close_leaderboard(){
         startscreen = document.getElementById("start_screen")
         // end screenn (points)
         endscreen = document.getElementById("end_screen")
-        // store screen (buy)
-        store = document.getElementById("store")
+        // setup shop
+        setup_shop()        
         // score text (i.e your a looser)
         score_text = document.getElementById("score_text")
         // send score button ( and send to server )
@@ -382,6 +539,8 @@ function close_leaderboard(){
         setup_leader_board()
         // load screen
         change_screen(start)
+        // setup powerup buttons
+        setup_powerups()
     })
 
 })()

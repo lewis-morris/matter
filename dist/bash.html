@@ -91,14 +91,17 @@
                 <hr>
                 <p>HOW TO PLAY: <br>Smash the weapons into your chosen character to get the most points in 30 seconds</h5>
                 <hr class="w-100 bg-dark">
-                <button id="start" class="btn btn-warning">Start</button>
+                <button id="goto_shop" class="btn btn-warning">Buy Weapons</button>
                 <hr class="w-100 bg-dark">                
             </div>
 
             <div class="d-none" id="store">
                 <div class="d-flex flex-column justify-content-center">
                     <h3>STORE</h3>
+                    <hr>
+                    <button id="start">Start Playing</button>
                 </div>
+
             </div>
 
             <div class="d-none" id="end_screen">
@@ -142,7 +145,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>Powerup!
     </div>
 
 
@@ -152,6 +155,12 @@
         <button class="mb-2 clear_board btn btn-primary" id="clear_board">Reset Game</button>        
         <h3 class="timer" id="timer">Timer: <span id="timeleft">00:00</span></h3>                
         <h3 class="score" id="score">Score: <span id="score_current">0</span></h3>           
+        <div id="powerup_section" class="text-light shrunk">
+            <hr style="height:3px; background:white;">
+            <p class="text-white">Powerup!</p>
+            <button class="mb-2 clear_board btn btn-sm btn-danger" id="activate_powerup">Double Gravity!!</button>        
+            <hr style="height:3px; background:white;">
+        </div>
     </div>
 <!-- 
     div class="text-center">

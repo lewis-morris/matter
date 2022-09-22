@@ -338,6 +338,35 @@ function engine() {
         })
     }
 
+    function change_gravity(x,y, time){
+        engine.gravity.y = y;
+        engine.gravity.x = x;
+        setTimeout(()=>{
+            engine.gravity.y = 1;
+            engine.gravity.x = 0;
+        },time)
+    }
+
+    function golf_spam(times){
+        for(let x = 0; x < times; x++){
+            create_element("img", 100,200, "20px", "20px", {restitution:0.8, src: "./images/golf.png"}, "circle")
+        }
+    }
+
+    function make_sticky(time){
+        blocks.forEach(block => {
+            block.body.old_friction = block.body.friction
+            block.body.friction = 1
+        })
+
+        setTimeout(()=>{            
+            blocks.forEach(block => {
+                block.body.friction = block.body.old_friction
+            })
+        },time)
+    }
+    
+
     function start() {
         running = true
 
@@ -377,10 +406,8 @@ function engine() {
         })
 
     }
-    function clear() {
 
-    }
-    return { start: start, stop: stop }
+    return { start: start, stop: stop, change_gravity: change_gravity, golf_spam: golf_spam, make_sticky:make_sticky}
 }
 
 export { engine, create_element, create_constraint }
