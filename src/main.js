@@ -375,6 +375,9 @@ function send_play_to_server(){
 
 function change_screen(screen="start", active=true){
     if(screen=="start"){
+
+        bought_items.innerHTML = "" 
+        
         endscreen.classList.add("d-none")
         leader_board.classList.add("d-none")
         store.classList.add("d-none")
