@@ -144,10 +144,13 @@ function start_games(){
     let bat = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/bat.png"}, "block")
     let knuckle = create_element("img", 100,200, "75px", "40px", {restitution:0.2, src: "./images/nuckle.png"}, "block")
     let mace = create_element("img", 100,200, "200px", "35px", {restitution:0.2, src: "./images/mace.png"}, "block")
-    let brick = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
     let brick2 = create_element("img", 100,200, "100px", "50px", {restitution:0.2, src: "./images/brick.png"}, "block")
-    let dildo = create_element("img", 100,200, "30px", "95px", {restitution:0.2, src: "./images/dildo.png"}, "block")
+    let dildo = create_element("img", 100,200, "26px", "105px", {restitution:0.2, src: "./images/dildo.png"}, "block")
+    let magnum = create_element("img", 100,200, "30px", "72px", {restitution:0.2, src: "./images/magnum.png"}, "block")
+    let joint = create_element("img", 100,200, "87px", "20px", {restitution:0.2, src: "./images/joint.png"}, "block")
+    let stella = create_element("img", 100,200, "37px", "90px", {restitution:0.2, src: "./images/stella.png"}, "block")
     let chair = create_element("img", 100,200, "80px", "130px", {restitution:0.2, src: "./images/chair.png"}, "block")
+    
 
     // starts the timer
     start_timer()
@@ -221,13 +224,19 @@ function ajax_with_func(url, httpType = "GET", func = null, is_json_response = t
 
 
 function send_score_to_server(){
-    send_score.innerText = "Sending.."
-    send_score.classList.add("disabled")
-    ajax_with_func(`https://thecomputermade.me/scores?name=` + yourname.value + "&score=" + score_number, "PUT", ()=>{
-        send_score.innerText = "Score Sent!!"
-        send_score.classList.remove("btn-outline-success")
-        send_score.classList.add("btn-outline-primary")
-    },true)
+    if(yourname.value == ""){
+        yourname.classList.add("is-invalid")
+    }else{
+        yourname.classList.remove("is-invalid")
+        send_score.innerText = "Sending.."
+        send_score.classList.add("disabled")
+        ajax_with_func(`https://thecomputermade.me/scores?name=` + yourname.value + "&score=" + score_number, "PUT", ()=>{
+            send_score.innerText = "Score Sent!!"
+            send_score.classList.remove("btn-outline-success")
+            send_score.classList.add("btn-outline-primary")
+        },true)
+    }
+
 }
 function change_screen(screen="start", active=true){
     if(screen=="start"){
