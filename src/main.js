@@ -219,7 +219,7 @@ function make_object(type){
     }else if(type=="mace"){
         create_element("img", 100,200, "200px", "35px", {density: 0.1*0.7, restitution:0.3, friction: 0.2, strength: 0.90, src: "./images/mace.png"}, "block")
     }else if(type=="brick"){
-        create_element("img", 100,200, "100px", "50px", {density: 0.1*0.8, restitution:0.05, friction: 0.05, strength: 0.70, src: "./images/brick.png"}, "block")
+        create_element("img", 100,200, "100px", "50px", {density: 0.1*0.8, restitution:0.95, friction: 0.05, strength: 0.70, src: "./images/brick.png"}, "block")
     }else if(type=="dildo"){
         create_element("img", 100,200, "26px", "105px", {density: 0.1*0.2, restitution:0.7, friction: 0.7, strength: 0.10, src: "./images/dildo.png"}, "block")
     }else if(type=="magnum"){
