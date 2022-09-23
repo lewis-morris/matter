@@ -43,6 +43,7 @@ let powerup_section
 let money_left
 let money_bags
 let activate_powerup_button
+let running = false
 let power_ups = [
     {"name":"Reverse Gravity","reverse_gravity":true, typ:"seconds"},
     {"name":"Double Gravity","double_gravity":true, typ:"seconds"},
@@ -56,8 +57,25 @@ let power_ups = [
     {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
     {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
     {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Random Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Random Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Random Air Drop", "air_drop":true, typ:"minor"},
     {"name":"Stella Air Drop", "air_drop":true, typ:"minor"},
     {"name":"Stella Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Golf Air Drop", "air_drop":true, typ:"times"},
+    {"name":"Golf Air Drop", "air_drop":true, typ:"times"},
+    {"name":"Make It Rain", "air_drop":true, typ:"times"},
+    {"name":"Make It Rain", "air_drop":true, typ:"times"},    
+    {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Random Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Random Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Random Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Stella Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Stella Air Drop", "air_drop":true, typ:"minor"},
+    {"name":"Sticky Things", "sticky_items":true, typ:"seconds"},
+    {"name":"Shake Screen", "sticky_items":true, typ:"minor"},
     {"name":"Sticky Things", "sticky_items":true, typ:"seconds"},
     {"name":"Shake Screen", "sticky_items":true, typ:"minor"}
 ]
@@ -163,14 +181,17 @@ function clear_board(){
 
 function update_score(score){
     // update the score of the hit
-    score_number = score_number + score
-    current_score.innerText = Math.round(score_number)
-    if(score_number > 10000 && score_level == 0){
-        window["goal_el"].el.src = window["goal_el"].el.src.replace(".png", "_1.png")
-        score_level = 1 
-    }else if(score_number > 20000 && score_level == 1){
-        window["goal_el"].el.src = window["goal_el"].el.src.replace("_1.png", "_2.png")
-        score_level = 2
+    // this is here as people were cheating the game after timer ended
+    if(running){
+        score_number = score_number + score
+        current_score.innerText = Math.round(score_number)
+        if(score_number > 10000 && score_level == 0){
+            window["goal_el"].el.src = window["goal_el"].el.src.replace(".png", "_1.png")
+            score_level = 1 
+        }else if(score_number > 20000 && score_level == 1){
+            window["goal_el"].el.src = window["goal_el"].el.src.replace("_1.png", "_2.png")
+            score_level = 2
+        }        
     }
 }
 
@@ -213,6 +234,7 @@ function start_timer(){
         
         //stop if finished 
         if(seconds > 29){
+            running = false
             console.log(distance)
             clearInterval(interv);
             show_end()
@@ -249,6 +271,7 @@ function make_object(type, x=100, y=200){
 }
 function start_games(){
 
+    running = true
     // send play 
     send_play_to_server()
     // close powerup incase left open
@@ -561,7 +584,17 @@ function run_current_powerup_function(){
 
     }else if(current_powerup.name == "Sticky Things"){
 
-        return () => {game_funcs.make_sticky(current_powerup.do_times)}
+        return () => {game_funcs.make_sticky(current_powerup.do_times)}       
+
+    }else if(current_powerup.name == "Random Air Drop"){
+
+        return () => {
+            let randomitem
+            for(let x=0; x < current_powerup.do_times; x ++){
+                randomitem = Object.keys(costs)[Math.floor(Math.random()*Object.keys(costs).length)]
+                make_object (randomitem)
+            }           
+        }
 
     }else if(current_powerup.name == "Shake Screen"){
 
