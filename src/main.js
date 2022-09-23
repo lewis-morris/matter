@@ -51,6 +51,8 @@ let power_ups = [
     {"name":"Double Gravity","double_gravity":true, typ:"seconds"},
     {"name":"Golf Air Drop", "air_drop":true, typ:"times"},
     {"name":"Golf Air Drop", "air_drop":true, typ:"times"},
+    {"name":"Make It Rain", "air_drop":true, typ:"times"},
+    {"name":"Make It Rain", "air_drop":true, typ:"times"},    
     {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
     {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
     {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
@@ -240,7 +242,9 @@ function make_object(type){
     }else if(type=="ball"|| type == 9){
         create_element("img", 100,200, "50px", "50px", {density: 0.1*0.2, restitution:1, friction: 0, strength: 0.3, src: "./images/ball.png"}, "circle")
     }else if(type=="golf"|| type == 10){
-        create_element("img", 100,200, "10px", "10px", {density: 0.1*0.6, restitution:1, friction: 0, strength: .025, src: "./images/golf.png"}, "circle")
+        create_element("img", 100,200, "10px", "10px", {density: 0.1*0.2, restitution:1, friction: 0, strength: .025, src: "./images/golf.png"}, "circle")
+    }else if(type=="money"|| type == 10){
+        create_element("img", 100,200, "30px", "10px", {density: 0.1*0.2, restitution:0, friction: 1, strength: .0125, src: "./images/dollar.png"}, "circle")
     }
 }
 function start_games(){
@@ -536,6 +540,14 @@ function run_current_powerup_function(){
         return () => {         
             for(let x = 0; x < current_powerup.do_times; x++){
                 make_object("golf")
+            }            
+
+        }
+    }else if(current_powerup.name == "Make It Rain"){
+
+        return () => {         
+            for(let x = 0; x < current_powerup.do_times; x++){
+                make_object("money")
             }            
 
         }
