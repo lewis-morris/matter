@@ -272,7 +272,7 @@ function start_games(){
     // gets the center screen value for client
     let center_val = document.body.clientWidth / 2
     // creates a goal element/ target
-    window["goal_el"] = create_element("img", center_val,200,"100px","100px", {src: currentImage, data:{goal: "true"}})
+    window["goal_el"] = create_element("img", center_val,200,"100px","100px", {density: 0.1*1.2,src: currentImage, data:{goal: "true"}})
     // attached it to a rope
     create_constraint(goal_el, "div", center_val, 25, 2)
     // creates weapons
