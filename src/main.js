@@ -377,7 +377,7 @@ function change_screen(screen="start", active=true){
     if(screen=="start"){
 
         bought_items.innerHTML = "" 
-        
+
         endscreen.classList.add("d-none")
         leader_board.classList.add("d-none")
         store.classList.add("d-none")
@@ -582,10 +582,10 @@ function deactivate_powerup(){
     function decrease_floor(){
         if(screen.width < 450 ){
             document.querySelectorAll("[data-floor]").forEach(value=>{
-                value.style.height = "20px"
+                value.style.height = "70px"
             })
             document.querySelectorAll("[data-wall]").forEach(value=>{
-                value.style.width = "20px"
+                value.style.width = "70px"
             })
         }
     }
