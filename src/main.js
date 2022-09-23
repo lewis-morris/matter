@@ -50,7 +50,8 @@ let power_ups = [
     {"name":"Golf Air Drop", "air_drop":true, typ:"times"},
     {"name":"Bat Air Drop", "air_drop":true, typ:"minor"},
     {"name":"Stella Air Drop", "air_drop":true, typ:"minor"},
-    {"name":"Sticky Things", "sticky_items":true, typ:"seconds"}
+    {"name":"Sticky Things", "sticky_items":true, typ:"seconds"},
+    {"name":"Shake Screen", "sticky_items":true, typ:"minor"}
 ]
 let bought_items
 let costs = {"bat": 50, "knuckle": 10, "mace": 55, "brick":20, "dildo": 15, "magnum": 7.5, "joint": 5, "chair": 30,
@@ -212,27 +213,27 @@ function start_timer(){
 }
 
 function make_object(type){
-    if(type=="bat"){
+    if(type=="bat" || type == 0){
         create_element("img", 100,200, "200px", "35px", {density: 0.1*0.6, restitution:0.50, friction: 0.50, strength: 0.30, src: "./images/bat.png"}, "block")
-    }else if(type=="knuckle"){
+    }else if(type=="knuckle"|| type == 1){
         create_element("img", 100,200, "75px", "40px", {density: 0.1*0.6, restitution:0.10, friction: 0.7, strength: 0.8, src: "./images/nuckle.png"}, "block")
-    }else if(type=="mace"){
+    }else if(type=="mace"|| type == 2){
         create_element("img", 100,200, "200px", "35px", {density: 0.1*0.7, restitution:0.3, friction: 0.2, strength: 0.90, src: "./images/mace.png"}, "block")
-    }else if(type=="brick"){
+    }else if(type=="brick"|| type == 3){
         create_element("img", 100,200, "100px", "50px", {density: 0.1*0.8, restitution:0.95, friction: 0.05, strength: 0.70, src: "./images/brick.png"}, "block")
-    }else if(type=="dildo"){
+    }else if(type=="dildo"|| type == 4){
         create_element("img", 100,200, "26px", "105px", {density: 0.1*0.2, restitution:0.7, friction: 0.7, strength: 0.10, src: "./images/dildo.png"}, "block")
-    }else if(type=="magnum"){
+    }else if(type=="magnum"|| type == 5){
         create_element("img", 100,200, "26px", "105px", {density: 0.1*0.3, restitution:0.05, friction: 0.05, strength: 0.70, src: "./images/magnum.png"}, "block")
-    }else if(type=="joint"){
+    }else if(type=="joint"|| type == 6){
         create_element("img", 100,200, "76px", "15px", {density: 0.1*0.1, restitution:0.1, friction: 0.8, strength: 0.1, src: "./images/joint.png"}, "block")
-    }else if(type=="chair"){
+    }else if(type=="chair"|| type == 7){
         create_element("img", 100,200, "80px", "130px", {density: 0.1*0.45, restitution:0.7, friction: 0.5, strength: 0.55, src: "./images/chair.png"}, "block")
-    }else if(type=="stella"){
+    }else if(type=="stella"|| type == 8){
         create_element("img", 100,200, "37px", "90px", {density: 0.1*0.1, restitution:0.2, friction: 0.8, strength: 0.2, src: "./images/stella.png"}, "block")
-    }else if(type=="ball"){
+    }else if(type=="ball"|| type == 9){
         create_element("img", 100,200, "50px", "50px", {density: 0.1*0.2, restitution:1, friction: 0, strength: 0.3, src: "./images/ball.png"}, "circle")
-    }else if(type=="golf"){
+    }else if(type=="golf"|| type == 10){
         create_element("img", 100,200, "10px", "10px", {density: 0.1*0.6, restitution:1, friction: 0, strength: .025, src: "./images/golf.png"}, "circle")
     }
 }
@@ -543,6 +544,18 @@ function run_current_powerup_function(){
     }else if(current_powerup.name == "Sticky Things"){
 
         return () => {game_funcs.make_sticky(current_powerup.do_times)}
+
+    }else if(current_powerup.name == "Shake Screen"){
+
+        return () => {
+            let randomitem
+            for(let x=0; x < current_powerup.do_times; x ++){
+                randomitem = Object.keys(costs)[Math.floor(Math.random()*Object.keys(costs).length)]
+                make_object (randomitem)
+            }           
+            game_funcs.shake(current_powerup.do_times)
+        }
+
 
     }else if(current_powerup.name == "Stella Air Drop"){
 

@@ -1,4 +1,4 @@
-import { Engine, Body, Composite, Bodies, Events, Query, Constraint, MouseConstraint, Mouse, Render } from 'matter-js'
+import { Engine, Body, Composite, Common, Bodies, Events, Query, Constraint, MouseConstraint, Mouse, Render } from 'matter-js'
 
 let world
 window["blocks"] = []
@@ -371,7 +371,31 @@ function engine() {
             })
         },time)
     }
-    
+    function shake(times){
+
+        let cur_times = 0 
+
+        function fire(){
+            blocks.forEach(block => {
+                let forceMagnitude = (0.02 * block.body.mass)*3;
+
+                Body.applyForce(block.body, block.body.position, { 
+                    x: (forceMagnitude + Common.random() * forceMagnitude) * Common.choose([1, -1]), 
+                    y: -forceMagnitude + Common.random() * -forceMagnitude
+                });
+            })          
+            cur_times ++ 
+            if(cur_times > times-1){
+                clearInterval(interv)
+            }
+        }
+
+        let interv = setInterval(()=>{
+            fire()
+        }, 1500)       
+
+        fire()
+    }
 
     function start() {
         running = true
@@ -413,7 +437,7 @@ function engine() {
 
     }
 
-    return { start: start, stop: stop, change_gravity: change_gravity, make_sticky:make_sticky}
+    return { start: start, stop: stop, change_gravity: change_gravity, make_sticky:make_sticky,shake:shake}
 }
 
 export { engine, create_element, create_constraint }
