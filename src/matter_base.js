@@ -116,7 +116,7 @@ function create_element(typ = "div", x = 0, y = 0, width="90px", height="90px", 
 class Objecto {
 
     constructor(el, options = {}, is_generated = false) {
-        this.health = "strength" in options? 10000*options["strength"] : 100
+        this.health = "strength" in options? 10000*options["strength"]*2 : 10000
         this.el = el
         this.el.style.display = "inline";
         this.el.setAttribute("draggable", "false")
