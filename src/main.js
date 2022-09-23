@@ -44,6 +44,7 @@ let money_left
 let money_bags
 let activate_powerup_button
 let running = false
+let start_time
 let power_ups = [
     {"name":"Reverse Gravity","reverse_gravity":true, typ:"seconds"},
     {"name":"Double Gravity","double_gravity":true, typ:"seconds"},
@@ -77,7 +78,10 @@ let power_ups = [
     {"name":"Sticky Things", "sticky_items":true, typ:"seconds"},
     {"name":"Shake Screen", "sticky_items":true, typ:"minor"},
     {"name":"Sticky Things", "sticky_items":true, typ:"seconds"},
-    {"name":"Shake Screen", "sticky_items":true, typ:"minor"}
+    {"name":"Shake Screen", "sticky_items":true, typ:"minor"},
+    {"name":"Add", "sticky_items":true, typ:"addseconds"},
+    {"name":"Add", "sticky_items":true, typ:"addseconds"},
+    {"name":"Add", "sticky_items":true, typ:"addseconds"},
 ]
 let bought_items
 let costs = {"bat": 50, "knuckle": 10, "mace": 55, "brick":20, "dildo": 15, "magnum": 7.5, "joint": 5, "chair": 30,
@@ -87,7 +91,7 @@ let current_powerup
 
 class Money{
     constructor(){
-        this.money = 100
+        this.money = 150
         this.items = []
     }
     removeItemOnce([src, name]) {
@@ -216,7 +220,7 @@ function log_score(event){
 }
 function start_timer(){
     // gets dates etc
-    let start_time = new Date().getTime();
+    start_time = new Date().getTime();
     let current_time
     timeleft = document.getElementById("timeleft")
     interv = setInterval(()=>{
@@ -532,6 +536,8 @@ function check_powerup_number_set(){
         return randomIntFromInterval(30, 150)
     }else if(current_powerup.typ === "minor"){
         return randomIntFromInterval(2, 6)
+    }else if(current_powerup.typ === "addseconds"){
+        return randomIntFromInterval(2, 10)
     }
 }
 function check_powerup_text(){
@@ -541,6 +547,8 @@ function check_powerup_text(){
         return ` ${Math.round(current_powerup.do_times)} times`
     }else if(current_powerup.typ === "minor"){
         return ` ${Math.round(current_powerup.do_times)} times`
+    }else if(current_powerup.typ === "addseconds"){
+        return ` ${Math.round(current_powerup.do_times)} seconds`
     }
     
 }
@@ -616,7 +624,16 @@ function run_current_powerup_function(){
             }            
         }
 
+    }else if(current_powerup.name == "Add"){      
+        return () => {          
+            let date = new Date(start_time*1000)
+            start_time = start_time + (current_powerup.do_times  *1000)
+        }
+
     }
+
+    
+
 }
 function check_need_powerup(){
     if(randomIntFromInterval(1,25)==1 && !is_powerup_active()){
@@ -668,7 +685,7 @@ function deactivate_powerup(){
         start = document.getElementById("start")
 
         start.addEventListener("click", ()=>{
-            if(money_bags.money > 90){
+            if(money_bags.money > 130){
                 money_left.parentElement.classList.add("is-invalid")
             }else{
                 money_left.parentElement.classList.remove("is-invalid")
