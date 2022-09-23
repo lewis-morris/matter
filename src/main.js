@@ -595,10 +595,10 @@ function deactivate_powerup(){
     function decrease_floor(){
         if(screen.width < 450 ){
             document.querySelectorAll("[data-floor]").forEach(value=>{
-                value.style.height = "70px"
+                value.style.height = "170px"
             })
             document.querySelectorAll("[data-wall]").forEach(value=>{
-                value.style.width = "70px"
+                value.style.width = "170px"
             })
         }
     }
