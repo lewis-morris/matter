@@ -1,443 +1,767 @@
-import { Engine, Body, Composite, Common, Bodies, Events, Query, Constraint, MouseConstraint, Mouse, Render } from 'matter-js'
+import { Engine, Body, Composite, Common, Bodies, Events, Query, Constraint, MouseConstraint, Mouse } from "matter-js";
+import { spriteLookup } from "./assets/index.js";
 
-let world
-window["blocks"] = []
-window["constraints"] = []
-
-function randomIntFromInterval(min, max) {
-    // min and max included 
-    return Math.floor(Math.random() * (max - min + 1) + min)
+const STYLE_SNIPPET = `
+.fixed {
+    position: fixed;
 }
 
-function add_script(val) {
-    const style = document.createElement('style');
-    style.textContent = val
+.inline {
+    display: inline;
+}
+.round {
+    border-radius: 100%;
+}
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+`;
+
+let stylesInjected = false;
+
+const injectStylesIfNeeded = () => {
+    if (stylesInjected) {
+        return;
+    }
+    const style = document.createElement("style");
+    style.textContent = STYLE_SNIPPET;
     document.head.appendChild(style);
-}
+    stylesInjected = true;
+};
 
+const degreesToRadians = (degrees) => (degrees * Math.PI) / 180;
+const radiansToDegrees = (radians) => (radians * 180) / Math.PI;
 
-function degrees_to_radians(degrees) {
-    let pi = Math.PI;
-    return degrees * (pi / 180);
-}
-function radians_to_degrees(radians) {
-    let pi = Math.PI;
-    return radians * (180 / pi);
-}
+const DEFAULT_GRAVITY = { x: 0, y: 1 };
 
-function matter_setup() {
-    add_script(`
-    .fixed {
-        position: fixed;
+let activeEngine = null;
+
+const ensureActiveEngine = () => {
+    if (!activeEngine) {
+        throw new Error("MatterEngine has not been instantiated. Create an engine before adding elements.");
     }
-    
-    .inline {
-        display: inline;
-    }
-    .round {
-        border-radius: 100%;
-    }
-    .unselectable {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        
-    `)
-}
+    return activeEngine;
+};
 
-function create_constraint(join_el, typ = "div", x = 0, y = 0, width=10, par = document.body) {
+class MatterSprite {
+    constructor(engine, element, options = {}, isGenerated = false, collection) {
+        this.engine = engine;
+        this.world = engine.world;
+        this.el = element;
+        this.element = element;
+        this.isGenerated = isGenerated;
+        this.collection = collection;
 
-    let distance
-    let other_pos = join_el.get_center_point()
-    let a = x - other_pos["x"];
-    let b = y - other_pos["y"];    
-    distance = Math.sqrt( a*a + b*b );
-
-    let el = document.createElement(typ)
-
-//     <svg height="100vh" width="100vw">
-//   <line x1="0" y1="0" x2="200" y2="200" style="stroke:rgb(255,0,0);stroke-width:2" />
-//   Sorry, your browser does not support inline SVG.
-// </svg>
-
-
-    el.classList.add("inline", "fixed", "round")
-    el.src = "./images/head_sprite/rye.png"
-    par.appendChild(el)
-    el.style.width = distance + "px";
-    el.style.height = width + "px";
-    el.style.position = "fixed";
-    el.style.left = `${x}px`
-    el.style.top = `${y}px`
-
-    let block = new ConstraintO(join_el.body,x,y, el, {}, true)
-    // Body.applyForce(block.body, { x: block.body.position.x, y: block.body.position.y }, { x: force, y: 0 })
-    constraints.push(block)
-    return block
-}   
-function create_element(typ = "div", x = 0, y = 0, width="90px", height="90px", options={},bods_type="circle", content = "", par = document.getElementById("game-board")) {
-    let {src, href } = options
-    let block 
-    let el = document.createElement(typ)
-    el.classList.add("inline", "fixed", "round")
-    par.appendChild(el)
-    el.style.width = width;
-    el.style.height = height;
-    el.style.position = "fixed";
-    el.style.left = `${x}px`
-    el.style.top = `${y}px`
-
-    
-
-    if("data" in options){
-        Object.keys(options["data"]).forEach((key,index)=>{
-            el.setAttribute("data-" + key, options["data"][key])
-        })
-    }
-    if(src) el.src = src;
-
-    if(bods_type=="block"){
-        block = new Block(el, options, true)
-        blocks.push(block)
-        
-    }else{
-        block = new Circle(el, options, true)
-        blocks.push(block)
-        
-    }
-    return block
-    // Body.applyForce(block.body, { x: block.body.position.x, y: block.body.position.y }, { x: force, y: 0 })
-    
-}    
-class Objecto {
-
-    constructor(el, options = {}, is_generated = false) {
-        this.health = "strength" in options? 10000*options["strength"]*2 : 10000
-        this.el = el
         this.el.style.display = "inline";
-        this.el.setAttribute("draggable", "false")
-        this.el.setAttribute("selectable", "false")
-        this.el.classList.add("unselectable")
-        // 
-        this.clientX = document.body.scrollWidth
-        this.clientY = document.body.scrollHeight
-        this.is_generated = is_generated
-        // get inital angle
-        const start_angle = el.getAttribute("data-angle")
-        
-        // get data options
-        const dOptions = JSON.parse(el.getAttribute("data-options")) || {}
-
-        this.bb = el.getBoundingClientRect()
+        this.el.setAttribute("draggable", "false");
+        this.el.setAttribute("selectable", "false");
+        this.el.classList.add("unselectable");
         this.el.style.position = "fixed";
 
-        this.centerX = this.bb.left + this.bb.width / 2;
-        this.centerY = this.bb.top + this.bb.height / 2;
+        this.clientX = document.body.scrollWidth;
+        this.clientY = document.body.scrollHeight;
 
-        this.width = this.bb.width;
-        this.height = this.bb.height
+        const startAngle = element.getAttribute("data-angle");
+        const dataOptionsRaw = element.getAttribute("data-options");
+        const dataOptions = dataOptionsRaw ? JSON.parse(dataOptionsRaw) : {};
 
-        // set options 
-        this.merged_options = {
-            ...{
-                friction: 0,
-                restitution: 0.95,
-                angle: start_angle ? degrees_to_radians(Number(start_angle)) : 0,
-                isStatic: false
-            }, ...options, ...dOptions
+        this.rect = element.getBoundingClientRect();
+        this.centerX = this.rect.left + this.rect.width / 2;
+        this.centerY = this.rect.top + this.rect.height / 2;
+        this.width = this.rect.width;
+        this.height = this.rect.height;
+
+        this.mergedOptions = {
+            friction: 0,
+            restitution: 0.95,
+            angle: startAngle ? degreesToRadians(Number(startAngle)) : 0,
+            isStatic: false,
+            ...options,
+            ...dataOptions
         };
 
+        this.health = "strength" in this.mergedOptions
+            ? 10000 * this.mergedOptions.strength * 2
+            : 10000;
+
+        this.collection.push(this);
     }
-    deduct_health(value){
-        this.health -= value
-        console.log(this.health)
-        if(this.health < 0){
-            this.el.src = "./images/explosion.png"
-            setTimeout(()=>{
-                this.remove()
-            },500)
+
+    get_center_point() {
+        return this.body?.position ?? { x: this.centerX, y: this.centerY };
+    }
+
+    get_angle() {
+        return this.body?.angle ?? 0;
+    }
+
+    update() {
+        if (!this.body?.position) {
+            return;
+        }
+
+        const top = this.body.position.y - this.height / 2;
+        const left = this.body.position.x - this.width / 2;
+
+        const offScreen = left > this.clientX || left + this.width < 0 || top > this.clientY;
+        if (offScreen) {
+            return;
+        }
+
+        this.el.style.left = `${left}px`;
+        this.el.style.top = `${top}px`;
+        this.el.style.rotate = `${this.get_angle()}rad`;
+    }
+
+    deduct_health(value) {
+        this.health -= value;
+        if (this.health < 0) {
+            this.el.src = spriteLookup.effect("explosion");
+            setTimeout(() => {
+                this.remove();
+            }, 500);
         }
     }
-    get_center_point(){
-        return this.body.position
-    }
-    get_angle = () => {
-        return this.body.angle
-    }
-    update = () => {
-        let top = this.body.position.y - this.height / 2
-        let left = this.body.position.x - this.width / 2
 
-        // check to see if off the page then kill
-        let kill = left > this.clientX || left + this.width < 0 || top > this.clientY
-        if (kill) {
-            // this.remove()
+    remove() {
+        const index = this.collection.indexOf(this);
+        if (index !== -1) {
+            this.collection.splice(index, 1);
+        }
+        if (this.body) {
+            Composite.remove(this.world, this.body);
+        }
+        if (this.isGenerated) {
+            this.el.remove();
         } else {
-            // else move the element
-            this.el.style.position = "fixed";
-            this.el.style.left = `${left}px`
-            this.el.style.top = `${top}px`
-            this.el.style.rotate = `${this.get_angle()}rad`
+            this.el.removeAttribute("data-matter-done");
         }
     }
-
-    remove = () => {
-        blocks = blocks.filter(x => x !== this)
-        Composite.remove(world, this.body)
-        if(this.is_generated){ 
-            this.el.remove()
-        }else{
-            this.el.removeAttribute("data-matter-done")
-        };
-        
-    }
-
 }
 
-
-class ConstraintO extends Objecto {
-    constructor(other,x,y, ...params) {
-        super(...params)
-        this.body = Constraint.create({
-            pointA: { x: x, y: y },
-            bodyB: other,
-            pointB: { x: 0, y: 0 },
-            stiffness: 0.01,
-            damping: 0.01
-        });
-        this.body["ob"] = this
-        Composite.add(world, this.body)
-        this.el.style.position = "fixed"
+class BlockSprite extends MatterSprite {
+    constructor(engine, element, options = {}, isGenerated = false) {
+        super(engine, element, options, isGenerated, engine.blocks);
+        this.body = Bodies.rectangle(this.centerX, this.centerY, this.width, this.height, this.mergedOptions);
+        this.body.ob = this;
+        Composite.add(engine.world, this.body);
     }
-    get_distance = () => {
-        var a = this.body.pointA.x - this.body.bodyB.position.x;
-        var b = this.body.pointA.y - this.body.bodyB.position.y;
-        var c = Math.sqrt( a*a + b*b );
-        return c
-    }
-    get_angle = () => {
-        return Math.atan2(this.body.pointA.y - this.body.bodyB.position.y, this.body.pointA.x - this.body.bodyB.position.x);
-    }
-    update = () => {
-
-        let distance = this.get_distance()
-
-        let center_y = (this.body.pointA.y + this.body.bodyB.position.y) / 2
-        let center_x = (this.body.pointA.x + this.body.bodyB.position.x) / 2
-
-        let top = center_y - (this.height / 2)
-        let left = center_x - (distance / 2)
-
-        // let top = this.body.pointA.y - this.height * 2
-        // let left = this.body.pointA.x - distance / 2
-
-        // check to see if off the page then kill
-        let kill = left > this.clientX || left + this.width < 0 || top > this.clientY
-        if (kill) {
-            // this.remove()
-        } else {
-            // else move the element
-            this.el.style.width = distance
-            this.el.style.position = "fixed";
-            this.el.style.left = `${left}px`
-            this.el.style.top = `${top}px`
-            this.el.style.rotate = `${this.get_angle()}rad`
-            this.el.style.background = "white";
-            // this.el.style.zIndex= "-1"
-        }
-    }
-
-
 }
-class Block extends Objecto {
-    constructor(...params) {
-        super(...params)
-        this.body = Bodies.rectangle(this.centerX, this.centerY, this.bb.width, this.bb.height, this.merged_options);
-        this.body["ob"] = this
-        Composite.add(world, this.body)
-        this.el.style.position = "fixed"
-    }
 
-}
-class Circle extends Objecto {
-    constructor(...params) {
-        super(...params)
+class CircleSprite extends MatterSprite {
+    constructor(engine, element, options = {}, isGenerated = false) {
+        super(engine, element, options, isGenerated, engine.blocks);
         this.radius = this.width / 2;
-        this.body = Bodies.circle(this.centerX, this.centerY, this.radius, this.merged_options);
-        this.body["ob"] = this
-        Composite.add(world, this.body)
+        this.body = Bodies.circle(this.centerX, this.centerY, this.radius, this.mergedOptions);
+        this.body.ob = this;
+        Composite.add(engine.world, this.body);
     }
-    get_angle = () => {
-        return this.body.angle * 3
+
+    get_angle() {
+        return (this.body?.angle ?? 0) * 3;
     }
 }
 
-
-
-function engine() {
-
-    let running = false
-
-
-
-    engine = Engine.create();
-    window["matter_engine"] = engine
-    world = engine.world
-    blocks = []
-    constraints = []
-
-    engine.gravity.y = 1;
-    engine.gravity.x = 0;
-
-
-    // events
-    
-    Events.on(engine, 'collisionStart', function(event) {
-        // change object colours to show those in an active collision (e.g. resting contact)
-        event_function(event)
-    });
-    Events.on(engine, 'collisionActive', function(event) {
-        // change object colours to show those in an active collision (e.g. resting contact)
-        event_function(event)
-    });
-
-    const mouse = Mouse.create(document.getElementById("game-board"))
-    const mouse_ops = { mouse: mouse }
-    let mcst = MouseConstraint.create(engine, mouse_ops)
-    Composite.add(world, mcst)
-
-
-    const load_blocks = () => {
-        // gets all the elements that are on the page already.
-        document.querySelectorAll("[data-matter]:not([data-matter-done]").forEach(value => {
-            value.setAttribute("data-matter-done","")
-            if (value.getAttribute("data-matter") == "rigid") {
-                blocks.push(new Block(value, { isStatic: true }, false));
-            } else if (value.getAttribute("data-matter") == "block") {
-                blocks.push(new Block(value, { restitution: 0.4, friction: 0.23 }, false));
-            } else if (value.getAttribute("data-matter") == "circle") {
-                blocks.push(new Circle(value, { density: 0.1, restitution: 1, friction: 0.1 }, false));
-            }
-        })
-
+class ConstraintSprite extends MatterSprite {
+    constructor(engine, anchorBody, anchorX, anchorY, element, options = {}, isGenerated = true) {
+        super(engine, element, options, isGenerated, engine.constraints);
+        this.anchorBody = anchorBody;
+        this.anchorPoint = { x: anchorX, y: anchorY };
+        element.style.zIndex = "-1";
+        const dx = anchorX - anchorBody.position.x;
+        const dy = anchorY - anchorBody.position.y;
+        this.initialLength = Math.hypot(dx, dy);
+        this.body = Constraint.create({
+            pointA: { x: anchorX, y: anchorY },
+            bodyB: anchorBody,
+            pointB: { x: 0, y: 0 },
+            length: this.initialLength,
+            stiffness: 0.02,
+            damping: 0.04
+        });
+        this.body.ob = this;
+        Composite.add(engine.world, this.body);
     }
 
-    const update_items = () => {
-        // used to update all items in the world.
-        blocks.forEach(block => {
-            block.update()
-        })
-        constraints.forEach(constraint => {
-            constraint.update()
-        })
+    get_distance() {
+        const dx = this.anchorPoint.x - this.anchorBody.position.x;
+        const dy = this.anchorPoint.y - this.anchorBody.position.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
-    const check_colisions = () => {
-        if(goal_el){
-            event_function(Query.collides(goal_el.body, get_bodies()) )
+
+    get_angle() {
+        return Math.atan2(
+            this.anchorPoint.y - this.anchorBody.position.y,
+            this.anchorPoint.x - this.anchorBody.position.x
+        );
+    }
+
+    update() {
+        const rawDistance = this.get_distance();
+        const distance = Math.max(rawDistance, this.initialLength ? this.initialLength * 0.35 : 40);
+        const centerY = (this.anchorPoint.y + this.anchorBody.position.y) / 2;
+        const centerX = (this.anchorPoint.x + this.anchorBody.position.x) / 2;
+
+        const top = centerY - this.height / 2;
+        const left = centerX - distance / 2;
+
+        const offScreen = left > this.clientX || left + distance < 0 || top > this.clientY;
+        if (offScreen) {
+            return;
         }
-        
+
+        this.el.style.width = `${distance}px`;
+        this.el.style.left = `${left}px`;
+        this.el.style.top = `${top}px`;
+        this.el.style.rotate = `${this.get_angle()}rad`;
+        this.el.style.background = "white";
     }
-    function maybe_create() {
-        // used to update all items in the world.
-        blocks.forEach(block => {
-            block.update()
-        })
+}
+
+class MatterEngine {
+    constructor({ onCollision, goalPhysics } = {}) {
+        injectStylesIfNeeded();
+
+        this.engine = Engine.create();
+        this.world = this.engine.world;
+
+        this.engine.gravity.x = DEFAULT_GRAVITY.x;
+        this.engine.gravity.y = DEFAULT_GRAVITY.y;
+        this.gravityProfile = {
+            itemScale: 1,
+            goalScale: 1
+        };
+        this.baseGravity = { ...DEFAULT_GRAVITY };
+        this.goalPhysicsOptions = {
+            angularVelocityScale: 1,
+            angularDamping: 0,
+            frictionAir: 0
+        };
+        this.goalGravityCompensationSuspended = false;
+        this.suspendCompensationDuringOverrides = true;
+        this.gravityOverrideToken = null;
+        this.gravityOverrideTimer = null;
+
+        this.blocks = [];
+        this.constraints = [];
+        this.goal = null;
+        this.running = false;
+        this.onCollision = onCollision ?? (() => {});
+
+        activeEngine = this;
+
+        this.mouseConstraint = this.createMouseConstraint();
+        this.registerCollisionHandlers();
+        this.loadStaticBodies();
+        this.pendingStickyTimeout = null;
+        if (goalPhysics) {
+            this.configureGoalPhysics(goalPhysics);
+        }
     }
 
-    function change_gravity(x,y, time){
-        engine.gravity.y = y;
-        engine.gravity.x = x;
-        setTimeout(()=>{
-            engine.gravity.y = 1;
-            engine.gravity.x = 0;
-        },time)
+    removeCollisionHandlers() {
+        if (this.forwardEvent) {
+            Events.off(this.engine, "collisionStart", this.forwardEvent);
+            Events.off(this.engine, "collisionActive", this.forwardEvent);
+            this.forwardEvent = null;
+        }
     }
 
-
-
-    function make_sticky(time){
-        blocks.forEach(block => {
-            block.body.old_friction = block.body.friction
-            block.body.friction = 1
-        })
-
-        setTimeout(()=>{            
-            blocks.forEach(block => {
-                block.body.friction = block.body.old_friction
-            })
-        },time)
+    createMouseConstraint() {
+        const board = document.getElementById("game-board") ?? document.body;
+        const mouse = Mouse.create(board);
+        const constraint = MouseConstraint.create(this.engine, { mouse });
+        Composite.add(this.world, constraint);
+        return constraint;
     }
-    function shake(times){
 
-        let cur_times = 0 
+    registerCollisionHandlers() {
+        const forwardEvent = (event) => {
+            if (!this.onCollision) {
+                return;
+            }
+            this.onCollision(event);
+        };
+        Events.on(this.engine, "collisionStart", forwardEvent);
+        Events.on(this.engine, "collisionActive", forwardEvent);
+        this.forwardEvent = forwardEvent;
+    }
 
-        function fire(){
-            blocks.forEach(block => {
-                let forceMagnitude = (0.02 * block.body.mass)*3;
+    loadStaticBodies() {
+        const candidates = document.querySelectorAll("[data-matter]:not([data-matter-done])");
+        candidates.forEach((element) => {
+            element.setAttribute("data-matter-done", "");
+            const type = element.getAttribute("data-matter");
+            if (type === "rigid") {
+                new BlockSprite(this, element, { isStatic: true }, false);
+            } else if (type === "block") {
+                new BlockSprite(this, element, { restitution: 0.4, friction: 0.23 }, false);
+            } else if (type === "circle") {
+                new CircleSprite(this, element, { density: 0.1, restitution: 1, friction: 0.1 }, false);
+            }
+        });
+    }
 
-                Body.applyForce(block.body, block.body.position, { 
-                    x: (forceMagnitude + Common.random() * forceMagnitude) * Common.choose([1, -1]), 
-                    y: -forceMagnitude + Common.random() * -forceMagnitude
+    start() {
+        if (this.running) {
+            return;
+        }
+        this.running = true;
+
+        const step = () => {
+            if (!this.running) {
+                return;
+            }
+            this.updateItems();
+            this.checkGoalCollisions();
+            Engine.update(this.engine);
+            this.applyGoalGravityAdjustment();
+            this.applyVelocityCaps();
+            requestAnimationFrame(step);
+        };
+
+        step();
+    }
+
+    stop() {
+        if (!this.running && this.blocks.length === 0 && this.constraints.length === 0) {
+            return;
+        }
+
+        this.running = false;
+
+        if (this.pendingStickyTimeout) {
+            window.clearTimeout(this.pendingStickyTimeout);
+            this.pendingStickyTimeout = null;
+        }
+        this.restoreStickyState();
+
+        if (this.gravityOverrideTimer) {
+            window.clearTimeout(this.gravityOverrideTimer);
+            this.gravityOverrideTimer = null;
+        }
+        this.goalGravityCompensationSuspended = false;
+        this.gravityOverrideToken = null;
+
+        this.baseGravity = { ...DEFAULT_GRAVITY };
+        this.gravityProfile = { itemScale: 1, goalScale: 1 };
+        this.engine.gravity.x = this.baseGravity.x;
+        this.engine.gravity.y = this.baseGravity.y;
+
+        this.blocks.slice().forEach((block) => block.remove());
+        this.constraints.slice().forEach((constraint) => constraint.remove());
+        this.goal = null;
+
+        this.removeCollisionHandlers();
+
+        if (this.mouseConstraint) {
+            Composite.remove(this.world, this.mouseConstraint);
+            this.mouseConstraint = null;
+        }
+
+        if (activeEngine === this) {
+            activeEngine = null;
+        }
+    }
+
+    setGoal(goal) {
+        this.goal = goal;
+        this.applyGoalPhysicsSettings();
+    }
+
+    configureGoalPhysics(options = {}) {
+        const defaults = {
+            angularVelocityScale: 1,
+            angularDamping: 0,
+            frictionAir: 0
+        };
+        this.goalPhysicsOptions = {
+            ...defaults,
+            ...options
+        };
+        this.applyGoalPhysicsSettings();
+    }
+
+    applyGoalPhysicsSettings() {
+        if (!this.goal?.body) {
+            return;
+        }
+        const body = this.goal.body;
+        if (typeof this.goalPhysicsOptions.frictionAir === "number") {
+            body.frictionAir = this.goalPhysicsOptions.frictionAir;
+        }
+        if (typeof this.goalPhysicsOptions.angularDamping === "number") {
+            body.angularDamping = this.goalPhysicsOptions.angularDamping;
+        }
+    }
+
+    updateItems() {
+        this.blocks.forEach((block) => block.update());
+        this.constraints.forEach((constraint) => constraint.update());
+    }
+
+    applyGoalGravityAdjustment() {
+        if (!this.goal || !this.goal.body || this.goalGravityCompensationSuspended) {
+            return;
+        }
+        const itemScale = this.gravityProfile.itemScale ?? 1;
+        const goalScale = this.gravityProfile.goalScale ?? itemScale;
+        const diffScale = goalScale - itemScale;
+        if (Math.abs(diffScale) < 0.001) {
+            return;
+        }
+        const body = this.goal.body;
+        const scale = this.engine.world.gravity?.scale ?? 0.001;
+        const force = {
+            x: body.mass * DEFAULT_GRAVITY.x * diffScale * scale,
+            y: body.mass * DEFAULT_GRAVITY.y * diffScale * scale
+        };
+        Body.applyForce(body, body.position, force);
+    }
+
+    applyVelocityCaps() {
+        const MAX_LINEAR_SPEED = 28;
+        const MAX_ANGULAR_SPEED = 2.4;
+        this.blocks.forEach((block) => {
+            const body = block.body;
+            if (!body) {
+                return;
+            }
+            const velocity = body.velocity;
+            const speed = Math.hypot(velocity.x, velocity.y);
+            if (speed > MAX_LINEAR_SPEED) {
+                const scale = MAX_LINEAR_SPEED / speed;
+                Body.setVelocity(body, {
+                    x: velocity.x * scale,
+                    y: velocity.y * scale
                 });
-            })          
-            cur_times ++ 
-            if(cur_times > times-1){
-                clearInterval(interv)
+            }
+            if (Math.abs(body.angularVelocity) > MAX_ANGULAR_SPEED) {
+                Body.setAngularVelocity(body, Math.sign(body.angularVelocity) * MAX_ANGULAR_SPEED);
+            }
+        });
+        if (this.goal?.body) {
+            const body = this.goal.body;
+            const angularScale = Math.max(0, this.goalPhysicsOptions.angularVelocityScale ?? 1);
+            const maxGoalAngular = MAX_ANGULAR_SPEED * angularScale;
+            if (maxGoalAngular > 0 && Math.abs(body.angularVelocity) > maxGoalAngular) {
+                body.angularVelocity = Math.sign(body.angularVelocity) * maxGoalAngular;
+            }
+            const damping = this.goalPhysicsOptions.angularDamping ?? 0;
+            if (damping > 0 && damping < 1) {
+                body.angularVelocity *= 1 - damping;
             }
         }
-
-        let interv = setInterval(()=>{
-            fire()
-        }, 1500)       
-
-        fire()
     }
 
-    function start() {
-        running = true
-
-        load_blocks()
-
-        const rerender = () => {
-            // update items
-            if (running) {
-                update_items()
-                // check collisions
-                check_colisions()
-                // update physics
-                Engine.update(engine);
-                // run again
-                requestAnimationFrame(rerender);
-            }
+    checkGoalCollisions() {
+        if (!this.goal || !this.onCollision) {
+            return;
         }
-        rerender()
-
+        const collisions = Query.collides(this.goal.body, this.blocks.map((block) => block.body));
+        if (collisions.length) {
+            this.onCollision(collisions);
+        }
     }
 
-
-    function get_bodies(){
-        let bods = []
-        blocks.forEach(value =>{
-            bods.push(value.body)
-        })
-        return bods
-    }
-    function stop() {
-        running = false
-        blocks.forEach(block => {
-            block.remove()
-        })
-        constraints.forEach(constraint => {
-            constraint.remove()
-        })
-
+    getBodies() {
+        return this.blocks.map((block) => block.body);
     }
 
-    return { start: start, stop: stop, change_gravity: change_gravity, make_sticky:make_sticky,shake:shake}
+    set_base_gravity(x = DEFAULT_GRAVITY.x, y = DEFAULT_GRAVITY.y) {
+        this.baseGravity = { x, y };
+        this.engine.gravity.x = x;
+        this.engine.gravity.y = y;
+    }
+
+    reset_to_base_gravity() {
+        this.engine.gravity.x = this.baseGravity.x;
+        this.engine.gravity.y = this.baseGravity.y;
+        if (!this.gravityOverrideTimer) {
+            this.goalGravityCompensationSuspended = false;
+        }
+    }
+
+    setGravityProfile({ itemScale = 1, goalScale = 1, suspendDuringOverrides = true } = {}) {
+        this.gravityProfile = {
+            itemScale,
+            goalScale
+        };
+        this.baseGravity = {
+            x: DEFAULT_GRAVITY.x * itemScale,
+            y: DEFAULT_GRAVITY.y * itemScale
+        };
+        this.engine.gravity.x = this.baseGravity.x;
+        this.engine.gravity.y = this.baseGravity.y;
+        this.suspendCompensationDuringOverrides = suspendDuringOverrides !== false;
+        this.goalGravityCompensationSuspended = false;
+    }
+
+    change_gravity(x, y, duration) {
+        if (this.gravityOverrideTimer) {
+            window.clearTimeout(this.gravityOverrideTimer);
+            this.gravityOverrideTimer = null;
+        }
+        const token = Symbol("gravityOverride");
+        this.gravityOverrideToken = token;
+        if (this.suspendCompensationDuringOverrides) {
+            this.goalGravityCompensationSuspended = true;
+        }
+        this.engine.gravity.x = x;
+        this.engine.gravity.y = y;
+        if (duration > 0) {
+            this.gravityOverrideTimer = window.setTimeout(() => {
+                if (this.gravityOverrideToken !== token) {
+                    return;
+                }
+                this.reset_to_base_gravity();
+                this.goalGravityCompensationSuspended = false;
+                this.gravityOverrideTimer = null;
+                this.gravityOverrideToken = null;
+            }, duration);
+        }
+    }
+
+    restoreStickyState() {
+        this.blocks.forEach((block) => {
+            const body = block.body;
+            const backup = body?._stickyBackup;
+            if (!body || !backup) {
+                return;
+            }
+            body.friction = backup.friction;
+            body.frictionAir = backup.frictionAir;
+            body.restitution = backup.restitution;
+            delete body._stickyBackup;
+        });
+
+        if (this.goal?.body?._stickyBackup) {
+            const backup = this.goal.body._stickyBackup;
+            this.goal.body.friction = backup.friction;
+            this.goal.body.frictionAir = backup.frictionAir;
+            this.goal.body.restitution = backup.restitution;
+            delete this.goal.body._stickyBackup;
+        }
+    }
+
+    make_sticky(duration, options = {}) {
+        const {
+            intensity = "high",
+            frictionMultiplier = intensity === "high" ? 3.6 : 2.4,
+            airDrag = intensity === "high" ? 0.18 : 0.12,
+            velocityDamp = intensity === "high" ? 0.45 : 0.3,
+            goalFriction = intensity === "high" ? 2.6 : 1.8
+        } = options;
+
+        this.restoreStickyState();
+        if (this.pendingStickyTimeout) {
+            window.clearTimeout(this.pendingStickyTimeout);
+            this.pendingStickyTimeout = null;
+        }
+
+        this.blocks.forEach((block) => {
+            const body = block.body;
+            if (!body) {
+                return;
+            }
+            if (!body._stickyBackup) {
+                body._stickyBackup = {
+                    friction: body.friction,
+                    frictionAir: body.frictionAir ?? 0,
+                    restitution: body.restitution ?? 0
+                };
+            }
+            const baseFriction = body.friction ?? 0.2;
+            body.friction = Math.min(baseFriction * frictionMultiplier + 0.25, 5);
+            body.frictionAir = Math.min((body.frictionAir ?? 0) + airDrag, 0.4);
+            body.restitution = Math.min(body.restitution ?? 0, 0.18);
+            Body.setVelocity(body, {
+                x: body.velocity.x * (1 - velocityDamp),
+                y: body.velocity.y * (1 - velocityDamp)
+            });
+            Body.setAngularVelocity(body, body.angularVelocity * 0.4);
+        });
+
+        if (this.goal?.body) {
+            const goalBody = this.goal.body;
+            if (!goalBody._stickyBackup) {
+                goalBody._stickyBackup = {
+                    friction: goalBody.friction,
+                    frictionAir: goalBody.frictionAir ?? 0,
+                    restitution: goalBody.restitution ?? 0
+                };
+            }
+            goalBody.friction = Math.min(goalFriction, 3.5);
+            goalBody.frictionAir = Math.min((goalBody.frictionAir ?? 0) + airDrag * 0.5, 0.35);
+            goalBody.restitution = Math.min(goalBody.restitution ?? 0, 0.18);
+        }
+
+        this.pendingStickyTimeout = window.setTimeout(() => {
+            this.restoreStickyState();
+            this.pendingStickyTimeout = null;
+        }, duration);
+    }
+
+    shake(options = {}) {
+        const config = typeof options === "number" ? { times: options } : options;
+        const times = Math.max(1, Math.round(config.times ?? 3));
+        const magnitudeScale = config.magnitude ?? 1;
+        let current = 0;
+
+        const applyForce = () => {
+            this.blocks.forEach((block) => {
+                const magnitude = 0.02 * block.body.mass * 3 * magnitudeScale;
+                Body.applyForce(block.body, block.body.position, {
+                    x: (magnitude + Common.random() * magnitude) * Common.choose([1, -1]),
+                    y: -magnitude + Common.random() * -magnitude
+                });
+            });
+            current += 1;
+            if (current >= times) {
+                window.clearInterval(interval);
+            }
+        };
+
+        const intervalDelay = Math.max(180, 650 / magnitudeScale);
+        const interval = window.setInterval(applyForce, intervalDelay);
+        applyForce();
+    }
 }
 
-export { engine, create_element, create_constraint }
+const normaliseOptions = (options = {}) => {
+    const { src, href, data, ...physicsOptions } = options;
+    return {
+        src,
+        href,
+        data,
+        physicsOptions
+    };
+};
+
+export const createElement = (
+    tag = "div",
+    x = 0,
+    y = 0,
+    width = "90px",
+    height = "90px",
+    options = {},
+    bodyType = "circle",
+    content = "",
+    parent = document.getElementById("game-board") ?? document.body
+) => {
+    const engine = ensureActiveEngine();
+    const { src, href, data, physicsOptions } = normaliseOptions(options);
+
+    const parseDimension = (value) => {
+        if (typeof value === "number") {
+            return Math.abs(value);
+        }
+        if (typeof value === "string") {
+            const parsed = Number.parseFloat(value.replace(/px$/, ""));
+            return Number.isFinite(parsed) ? Math.abs(parsed) : null;
+        }
+        return null;
+    };
+
+    const widthValue = parseDimension(width);
+    const heightValue = parseDimension(height);
+    const minDimension = Math.max(Math.min(widthValue ?? 0, heightValue ?? 0), 1);
+    const maxDimension = Math.max(widthValue ?? 0, heightValue ?? 0);
+    const aspectRatio = minDimension > 0 ? maxDimension / minDimension : 1;
+    const elongated = bodyType === "block" && aspectRatio >= 1.6;
+
+    const element = document.createElement(tag);
+    element.classList.add("inline", "fixed");
+    if (bodyType !== "block") {
+        element.classList.add("round");
+    }
+    if (content) {
+        element.innerHTML = content;
+    }
+    parent.appendChild(element);
+
+    element.style.width = width;
+    element.style.height = height;
+    element.style.position = "fixed";
+    element.style.left = `${x}px`;
+    element.style.top = `${y}px`;
+
+    if (data) {
+        Object.entries(data).forEach(([key, value]) => {
+            element.setAttribute(`data-${key}`, value);
+        });
+    }
+    if (src) {
+        element.src = src;
+    }
+    if (href) {
+        element.href = href;
+    }
+
+    const sprite = bodyType === "block"
+        ? new BlockSprite(engine, element, physicsOptions, true)
+        : new CircleSprite(engine, element, physicsOptions, true);
+
+    sprite.aspectRatio = aspectRatio;
+    sprite.isElongated = elongated;
+    sprite.maxHealth = sprite.health;
+
+    if (elongated) {
+        const baseStrength = sprite.mergedOptions.strength ?? 0.5;
+        const adjustedStrength = baseStrength * 0.7;
+        sprite.mergedOptions.strength = adjustedStrength;
+        sprite.health = 10000 * adjustedStrength * 2;
+        sprite.maxHealth = sprite.health;
+        if (sprite.body) {
+            const currentRestitution = sprite.body.restitution ?? 0.2;
+            const boostedRestitution = Math.min(currentRestitution * 1.4, 0.92);
+            sprite.body.restitution = boostedRestitution;
+            const currentFriction = sprite.body.friction ?? 0.1;
+            sprite.body.friction = Math.max(currentFriction * 0.8, 0.02);
+        }
+        element.setAttribute("data-elongated", "true");
+    }
+
+    return sprite;
+};
+
+export const createConstraint = (
+    joinObject,
+    tag = "div",
+    anchorX = 0,
+    anchorY = 0,
+    width = 10,
+    parent = document.body
+) => {
+    const engine = ensureActiveEngine();
+    const element = document.createElement(tag);
+    element.classList.add("inline", "fixed");
+    parent.appendChild(element);
+    element.style.zIndex = "-1";
+
+    const { x, y } = joinObject.get_center_point();
+    const dx = anchorX - x;
+    const dy = anchorY - y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    element.style.width = `${distance}px`;
+    element.style.height = `${width}px`;
+    element.style.position = "fixed";
+    element.style.left = `${anchorX}px`;
+    element.style.top = `${anchorY}px`;
+
+    const constraint = new ConstraintSprite(engine, joinObject.body, anchorX, anchorY, element, {}, true);
+    return constraint;
+};
+
+export { MatterEngine };
+export const engine = MatterEngine;
+export const create_element = createElement;
+export const create_constraint = createConstraint;
+export { DEFAULT_GRAVITY };
+export { degreesToRadians as degrees_to_radians, radiansToDegrees as radians_to_degrees };
